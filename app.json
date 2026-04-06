@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-gooey-tabs",
-    "slug": "expo-gooey-tabs",
+    "name": "expo-gooey-toast",
+    "slug": "expo-gooey-toast",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

@@ -1,7 +1,8 @@
 {
-  "name": "expo-gooey-tabs",
+  "name": "expo-gooey-toast",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "Morphing blob toasts for React Native — pill to card with gooey SVG transitions",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
