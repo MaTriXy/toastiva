@@ -24,19 +24,10 @@ bun start
 
 ---
 
+
 ## 🎥 Preview
 
-<div align="center">
-<table>
-<tr>
-<td>
-
-<video src="/example-gooey-toast.mp4" />
-
-</td>
-</tr>
-</table>
-</div>
+https://github.com/user-attachments/assets/ed0c75b8-3ee3-43b3-8e24-eec3f25c5135
 
 ---
 
