@@ -1,23 +1,28 @@
 export { ToastivaProvider } from "./components/ToastivaProvider";
-export { ToastivaToaster } from "./components/ToastivaToaster";
-export { Toastiva, Toastiva as Toast } from "./components/Toastiva";
-export { toastiva, toastiva as tostiva } from "./store";
-export { ToastivaMode } from "./typings";
-export * from "./components";
-export * from "./hooks";
-export * from "./store";
-export * from "./typings";
-export * from "./utils";
+export { toastiva } from "./store";
+export {
+  ToastivaBodyLayout,
+  ToastivaMode,
+  ToastivaPosition,
+  ToastivaType,
+  ToastivaVerticalPosition,
+} from "./typings";
 export type {
+  IToastivaAction,
   IToastivaConfig,
   IToastivaOptions,
+  IToastivaPromiseAction,
   IToastivaPromiseData,
+  IToastivaPromiseDescription,
+  IToastivaPromiseIcon,
   IToastivaProviderProps,
   IToastivaTheme,
   IToastivaTiming,
   TToastivaBodyLayout,
   TToastivaMode,
   TToastivaPosition,
+  TToastivaPromiseDescription,
+  TToastivaPromiseMessage,
   TToastivaSpringConfig,
   TToastivaType,
   TToastivaVerticalPosition,

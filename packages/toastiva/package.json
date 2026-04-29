@@ -1,6 +1,6 @@
 {
   "name": "toastiva",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Morphing toast notifications for React Native and React Native Web.",
   "license": "MIT",
   "author": "Ritesh <119659853+rit3zh@users.noreply.github.com>",
