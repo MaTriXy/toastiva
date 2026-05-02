@@ -112,7 +112,8 @@ toastiva.success("Saved", { description: "Your changes are ready." });
   </tr>
 </table>
 
-The layout is inspired by: sileo.aaryan.design
+> [!IMPORTANT]
+> The layout is inspired from sileo.aaryan.design
 
 ## License
 
