@@ -43,8 +43,8 @@
     <th align="center" width="50%">Android</th>
   </tr>
   <tr>
-    <td align="center"><img src="./docs/assets/preview-ios.gif" alt="Toastiva on iOS" width="280" /></td>
-    <td align="center"><img src="./docs/assets/preview-android.gif" alt="Toastiva on Android" width="280" /></td>
+https://github.com/user-attachments/assets/0f16d216-9bad-4933-98e3-c2994a9a14dd
+https://github.com/user-attachments/assets/fbfad5a6-e434-4a73-a3f7-cd528cb8ba2c
   </tr>
 </table>
 
