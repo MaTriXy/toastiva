@@ -2,7 +2,6 @@ import React, { memo } from "react";
 import { Platform, View } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import Svg from "react-native-svg";
-import { useToastTheme } from "../context";
 import { styles } from "../styles/toast.styles";
 import type { IToastSurfaceProps } from "../typings";
 import { BlobPath } from "./BlobPath";
@@ -15,7 +14,6 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
     ({
       ...props
     }: IToastSurfaceProps): (React.ReactNode & React.ReactElement) | null => {
-      const theme = useToastTheme();
       const hasBodyContent = Boolean(
         props.toast.description || props.toast.action || props.toast.content,
       );
@@ -31,6 +29,7 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
             width={props.bodyWidth}
             height={props.renderHeight}
             viewBox={`0 0 ${props.bodyWidth} ${props.renderHeight}`}
+            fill="none"
             // Sileo: SVG canvas stays a stable container; pill geometry animates
             // inside it. With overflow="visible", a path drawn at a width that
             // exceeds the static canvas (e.g. while pillWidth.value is still
@@ -44,8 +43,8 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
           >
             <BlobPath
               animatedProps={props.animatedPathProps}
-              fill={theme.surfaceColors[props.toast.type]}
-              stroke={theme.surfaceStrokeColors[props.toast.type]}
+              fill={props.surfaceFill}
+              stroke={props.stroke}
               strokeWidth={0.6}
             />
           </Svg>
@@ -54,28 +53,36 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
             style={[
               styles.content,
               { width: props.bodyWidth },
+              props.styleOverrides?.content,
               props.contentStyle,
             ]}
             pointerEvents="box-none"
           >
             {/* Outer wrapper: preserves original toast-level FadeIn/FadeOut */}
 
-            <Animated.View
-              entering={hasBodyContent ? undefined : FadeIn.duration(500)}
-              exiting={hasBodyContent ? undefined : FadeOut.duration(500)}
-            >
-              <ToastHeader
-                align={props.headerAlign}
-                color={props.color}
-                headerContent={props.toast.headerContent}
-                Icon={props.Icon}
-                icon={props.toast.icon}
-                maxWidthStyle={props.headerMaxWidthStyle}
-                morphSpringConfig={props.morphSpringConfig}
-                title={props.toast.title}
-                type={props.toast.type}
-              />
-            </Animated.View>
+            {props.noHeader ? null : (
+              <Animated.View
+                entering={hasBodyContent ? undefined : FadeIn.duration(500)}
+                exiting={hasBodyContent ? undefined : FadeOut.duration(500)}
+              >
+                <ToastHeader
+                  align={props.headerAlign}
+                  color={props.color}
+                  headerContent={props.toast.headerContent}
+                  Icon={props.Icon}
+                  icon={props.toast.icon}
+                  iosBlurTint={props.iosBlurTint}
+                  maxWidthStyle={props.headerMaxWidthStyle}
+                  morphSpringConfig={props.morphSpringConfig}
+                  disableIOSBlur={props.disableIOSBlur}
+                  showIcon={props.toast.showIcon}
+                  showIconBadge={props.toast.showIconBadge}
+                  styleOverrides={props.styleOverrides}
+                  title={props.toast.title}
+                  type={props.toast.type}
+                />
+              </Animated.View>
+            )}
 
             <ToastBody
               actionStyle={props.actionStyle}
@@ -89,6 +96,7 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
               progressStyle={props.progressStyle}
               showBody={props.showBody}
               showProgress={props.showProgress}
+              styleOverrides={props.styleOverrides}
               toast={props.toast}
             />
           </Animated.View>
@@ -97,6 +105,8 @@ const ToastSurface: React.MemoExoticComponent<React.FC<IToastSurfaceProps>> =
             <View>
               <ToastProgress
                 backgroundColor={`${props.color}40`}
+                fillStyle={props.styleOverrides?.progressFill}
+                trackStyle={props.styleOverrides?.progressTrack}
                 style={props.progressStyle}
               />
             </View>

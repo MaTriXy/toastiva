@@ -15,19 +15,24 @@ const ToastMeasureBody: React.MemoExoticComponent<
     const theme = useToastTheme();
 
     if (props.toast.content) {
-      return <View style={styles.measureBody}>{props.toast.content}</View>;
+      return (
+        <View style={[styles.measureBody, props.styleOverrides?.body]}>
+          {props.toast.content}
+        </View>
+      );
     }
 
     if (!props.toast.description && !props.toast.action) return null;
 
     return (
-      <View style={styles.measureBody}>
+      <View style={[styles.measureBody, props.styleOverrides?.body]}>
         {props.toast.description ? (
           <View style={props.toast.action ? styles.descWithAction : null}>
             <ToastDescription
               description={props.toast.description}
               meta={props.meta}
               layout={props.bodyLayout}
+              styleOverrides={props.styleOverrides}
             />
           </View>
         ) : null}
@@ -39,12 +44,14 @@ const ToastMeasureBody: React.MemoExoticComponent<
               style={[
                 styles.actionBtn,
                 { backgroundColor: theme.actionColors[props.toast.type] },
+                props.styleOverrides?.action,
               ]}
             >
               <Text
                 style={[
                   styles.actionLabel,
                   { color: theme.actionTextColors[props.toast.type] },
+                  props.styleOverrides?.actionText,
                 ]}
               >
                 {props.toast.action.label}

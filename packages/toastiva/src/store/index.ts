@@ -37,30 +37,41 @@ function createPromiseToast<TResult, TError = unknown>(
   promise: Promise<TResult>,
   data: IToastivaPromiseData<TResult, TError>,
 ) {
-  const loadingTiming =
-    data.timing ?
-      {
+  const loadingTiming = data.timing
+    ? {
         ...data.timing,
         displayDuration: undefined,
       }
     : undefined;
   const id = addToast<IToastivaOptions>({
     action: undefined,
+    animation: data.animation,
+    animationPreset: data.animationPreset,
     bodyLayout: data.bodyLayout,
+    bodyRadius: data.bodyRadius,
     description: data.description?.loading,
+    disableIOSBlur: data.disableIOSBlur,
     dismissible: false,
     duration: PROMISE_PENDING_DURATION,
+    expandedHeight: data.expandedHeight,
     expandedWidth: data.expandedWidth,
+    fill: data.fill,
     horizontalInset: data.horizontalInset,
     icon:
       data.icon?.loading ??
       createElement(SpinnerIcon, { color: "#3b82f6", size: 16 }),
+    iosBlurTint: data.iosBlurTint,
     isLoading: true,
     meta: data.meta,
     onAutoClose: data.onAutoClose,
     onDismiss: data.onDismiss,
     position: data.position,
+    showIcon: data.showIcon,
+    showIconBadge: data.showIconBadge,
     showTimestamp: data.showTimestamp,
+    springConfig: data.springConfig,
+    stroke: data.stroke,
+    styles: data.styles,
     timing: loadingTiming,
     title: data.loading,
     type: "info",
@@ -134,7 +145,10 @@ const toastiva = Object.assign(
     ) => createPromiseToast(promise, data),
     dismiss: removeToast,
     dismissAll,
-    custom: (content: ReactNode, options?: Omit<IToastivaOptions, "content">) =>
+    custom: (
+      content: ReactNode,
+      options?: Partial<Omit<IToastivaOptions, "content">>,
+    ) =>
       addToast({
         title: options?.title ?? "",
         type: options?.type ?? "default",

@@ -19,6 +19,8 @@ import {
 function useToastEffects(params: IUseToastEffectsParams) {
   const {
     bodyWidth,
+    bodyRadius,
+    animationConfig,
     collapsedCardHeight,
     collapsedOffset,
     expanded,
@@ -40,12 +42,17 @@ function useToastEffects(params: IUseToastEffectsParams) {
   } = params;
   const collapseDuration = getCollapseDuration(toast);
   const expandDuration = getExpandDuration(toast);
-  const bodyFadeDelay = getBodyFadeDelay(toast);
-  const bodyFadeDuration = getBodyFadeDuration(toast);
-  const descriptionSpringDelay = bodyFadeDelay;
-  const actionSpringDelay = bodyFadeDelay + 80;
-  const squishDelay = Math.max(24, Math.round(expandDuration * 0.08));
-  const stackCollapseDelay = 220;
+  const bodyFadeDelay =
+    animationConfig.morph.bodyFadeDelay ?? getBodyFadeDelay(toast);
+  const bodyFadeDuration =
+    animationConfig.morph.bodyFadeDuration ?? getBodyFadeDuration(toast);
+  const descriptionSpringDelay =
+    animationConfig.morph.descriptionDelay ?? bodyFadeDelay;
+  const actionSpringDelay =
+    bodyFadeDelay + animationConfig.morph.actionDelay;
+  const squishDelay =
+    animationConfig.morph.squishDelay ??
+    Math.max(24, Math.round(expandDuration * 0.08));
   const dimensionsReady = useRef(false);
   const firstRealMeasureApplied = useRef(false);
   const compactSignature = useRef<string | null>(null);
@@ -55,6 +62,7 @@ function useToastEffects(params: IUseToastEffectsParams) {
     if (!dimensionsReady.current || !firstRealMeasureApplied.current) {
       values.pillWidth.value = pillWidth;
       values.bodyWidth.value = bodyWidth;
+      values.bodyRadius.value = bodyRadius;
       values.collapsedHeight.value = collapsedCardHeight;
       values.expandedHeight.value = expandedHeight;
       dimensionsReady.current = true;
@@ -73,27 +81,43 @@ function useToastEffects(params: IUseToastEffectsParams) {
     if (!isMeasured) return;
 
     const shouldAnimateExpandedUpdate = hasBody && shouldShowExpandedBody;
-    const shouldSpringDimensions = morphMode || shouldAnimateExpandedUpdate;
+    const shouldAnimateDimensions = morphMode || shouldAnimateExpandedUpdate;
     // In morph mode, use the same spring config as morphProgress so all values
     // settle together (Sileo-style unified animation).
-    const dimensionSpring =
-      morphMode ? springConfig.morph : springConfig.pillResize;
+    const dimensionSpring = morphMode
+      ? springConfig.morph
+      : springConfig.pillResize;
+    const dimensionTiming = {
+      duration: expandDuration,
+      easing: Easing.out(Easing.cubic),
+    };
 
-    values.bodyWidth.value =
-      shouldSpringDimensions ?
-        withSpring(bodyWidth, dimensionSpring)
+    values.bodyWidth.value = shouldAnimateDimensions
+      ? morphMode
+        ? withSpring(bodyWidth, dimensionSpring)
+        : withTiming(bodyWidth, dimensionTiming)
       : bodyWidth;
-    values.expandedHeight.value =
-      shouldSpringDimensions ?
-        withSpring(expandedHeight, dimensionSpring)
+    values.bodyRadius.value = shouldAnimateDimensions
+      ? morphMode
+        ? withSpring(bodyRadius, dimensionSpring)
+        : withTiming(bodyRadius, dimensionTiming)
+      : bodyRadius;
+    values.expandedHeight.value = shouldAnimateDimensions
+      ? morphMode
+        ? withSpring(expandedHeight, dimensionSpring)
+        : withTiming(expandedHeight, dimensionTiming)
       : expandedHeight;
-    values.pillWidth.value = withSpring(pillWidth, dimensionSpring);
-    values.collapsedHeight.value = withSpring(
-      collapsedCardHeight,
-      dimensionSpring,
-    );
+    values.pillWidth.value =
+      shouldAnimateDimensions && !morphMode
+        ? withTiming(pillWidth, dimensionTiming)
+        : withSpring(pillWidth, dimensionSpring);
+    values.collapsedHeight.value =
+      shouldAnimateDimensions && !morphMode
+        ? withTiming(collapsedCardHeight, dimensionTiming)
+        : withSpring(collapsedCardHeight, dimensionSpring);
   }, [
     bodyWidth,
+    bodyRadius,
     collapsedCardHeight,
     expandDuration,
     expandedHeight,
@@ -102,6 +126,7 @@ function useToastEffects(params: IUseToastEffectsParams) {
     morphMode,
     pillWidth,
     values.bodyWidth,
+    values.bodyRadius,
     values.collapsedHeight,
     values.expandedHeight,
     values.pillWidth,
@@ -120,10 +145,10 @@ function useToastEffects(params: IUseToastEffectsParams) {
     if (!isMeasured) return;
     mountStartedRef.current = true;
     values.mountProgress.value = withTiming(1, {
-      duration: 420,
+      duration: animationConfig.mount.duration,
       easing: Easing.out(Easing.cubic),
     });
-  }, [isMeasured, values]);
+  }, [animationConfig.mount.duration, isMeasured, values]);
 
   useEffect(() => {
     if (toast.type !== "error") return;
@@ -149,11 +174,15 @@ function useToastEffects(params: IUseToastEffectsParams) {
     cancelAnimation(values.squishY);
     cancelAnimation(values.squishX);
     values.squishY.value = withSequence(
-      withTiming(0.95, { duration: 55 }),
+      withTiming(animationConfig.compact.squishScaleY, {
+        duration: animationConfig.compact.squishDuration,
+      }),
       withSpring(1, springConfig.squish),
     );
     values.squishX.value = withSequence(
-      withTiming(1.03, { duration: 55 }),
+      withTiming(animationConfig.compact.squishScaleX, {
+        duration: animationConfig.compact.squishDuration,
+      }),
       withSpring(1, springConfig.squish),
     );
   }, [
@@ -161,6 +190,9 @@ function useToastEffects(params: IUseToastEffectsParams) {
     morphMode,
     pillWidth,
     springConfig,
+    animationConfig.compact.squishDuration,
+    animationConfig.compact.squishScaleX,
+    animationConfig.compact.squishScaleY,
     toast.title,
     toast.type,
     values.squishX,
@@ -176,7 +208,12 @@ function useToastEffects(params: IUseToastEffectsParams) {
     cancelAnimation(values.squishX);
 
     if (shouldShowExpandedBody) {
-      values.morphProgress.value = withSpring(1, springConfig.morph);
+      values.morphProgress.value = morphMode
+        ? withSpring(1, springConfig.morph)
+        : withTiming(1, {
+            duration: expandDuration,
+            easing: Easing.out(Easing.cubic),
+          });
       values.bodyOpacity.value = withDelay(
         bodyFadeDelay,
         withTiming(1, {
@@ -195,45 +232,65 @@ function useToastEffects(params: IUseToastEffectsParams) {
       values.squishY.value = withDelay(
         squishDelay,
         withSequence(
-          withTiming(0.88, { duration: 60 }),
+          withTiming(animationConfig.morph.squishScaleY, {
+            duration: animationConfig.morph.squishDuration,
+          }),
           withSpring(1, springConfig.squish),
         ),
       );
       values.squishX.value = withDelay(
         squishDelay,
         withSequence(
-          withTiming(1.06, { duration: 60 }),
+          withTiming(animationConfig.morph.squishScaleX, {
+            duration: animationConfig.morph.squishDuration,
+          }),
           withSpring(1, springConfig.squish),
         ),
       );
       return;
     }
-    // Synchronized fast collapse so the toast finishes shrinking before the
-    // 420ms stack shuffle lands it in its new position. Without this, the
-    // shell + body keep animating long after the stack has moved, which
-    // reads as "push back, then close" instead of one coherent motion.
+    // Sileo-style collapse: content fades out fast (≈ 0.08 * shape duration),
+    // shape contracts on a single unified spring so morphProgress, squish and
+    // dimensions all settle on the same curve. Using withSpring (instead of a
+    // bezier timing) gives the soft overshoot/settle that makes the collapse
+    // feel like the shape is breathing back into the pill rather than easing
+    // along a fixed curve.
+    const collapseShapeDuration = getSmoothCollapseDuration(
+      animationConfig.morph.collapseDuration,
+    );
+    const contentFadeDuration = Math.max(
+      80,
+      Math.round(collapseShapeDuration * 0.18),
+    );
+    const contentSettleDuration = Math.max(
+      140,
+      Math.round(collapseShapeDuration * 0.45),
+    );
     values.bodyOpacity.value = withTiming(0, {
-      duration: 160,
-      easing: Easing.in(Easing.quad),
+      duration: contentFadeDuration,
+      easing: Easing.out(Easing.quad),
     });
     values.descriptionProgress.value = withTiming(0, {
-      duration: 180,
-      easing: Easing.in(Easing.cubic),
+      duration: contentSettleDuration,
+      easing: Easing.out(Easing.cubic),
     });
     values.actionProgress.value = withTiming(0, {
-      duration: 180,
-      easing: Easing.in(Easing.cubic),
+      duration: contentSettleDuration,
+      easing: Easing.out(Easing.cubic),
     });
-    values.morphProgress.value = withTiming(0, {
-      duration: 280,
-      easing: Easing.in(Easing.cubic),
-    });
+    values.squishY.value = withSpring(1, springConfig.morph);
+    values.squishX.value = withSpring(1, springConfig.morph);
+    values.morphProgress.value = withSpring(0, springConfig.morph);
   }, [
     bodyFadeDelay,
     bodyFadeDuration,
     collapseDuration,
     expandDuration,
     actionSpringDelay,
+    animationConfig.morph.collapseDuration,
+    animationConfig.morph.squishDuration,
+    animationConfig.morph.squishScaleX,
+    animationConfig.morph.squishScaleY,
     descriptionSpringDelay,
     springConfig,
     values.actionProgress,
@@ -249,25 +306,40 @@ function useToastEffects(params: IUseToastEffectsParams) {
   useEffect(() => {
     const expandedInStack =
       !isDismissing && (expanded || shouldShowExpandedBody);
-    const shouldDelayCollapseShuffle =
-      previousExpandedInStack.current && !expandedInStack && !isDismissing;
+    const wasExpandedInStack = previousExpandedInStack.current;
+    const isCollapsingExpandedStack =
+      wasExpandedInStack && !expandedInStack && !isDismissing;
     previousExpandedInStack.current = expandedInStack;
     const nextHeight = expandedInStack ? expandedHeight : collapsedCardHeight;
     const nextTranslate =
       (expandedInStack ? expandedOffset : collapsedOffset) * (isTop ? 1 : -1);
-    const nextScale =
-      expandedInStack ? 1 : Math.max(0.9, 1 - stackDepth * 0.05);
-    const nextOpacity =
-      expandedInStack ? 1 : Math.max(0.68, 0.94 - stackDepth * 0.1);
+    const nextScale = expandedInStack
+      ? 1
+      : Math.max(
+          animationConfig.stack.minScale,
+          1 - stackDepth * animationConfig.stack.scaleStep,
+        );
+    const nextOpacity = expandedInStack
+      ? 1
+      : Math.max(
+          animationConfig.stack.minOpacity,
+          0.94 - stackDepth * animationConfig.stack.opacityStep,
+        );
     // Single timing curve across all four stack properties so the reshuffle
     // settles in one frame instead of three (Y/scale/height on a spring,
     // opacity on a 180ms timing). Matched to the 420ms mount duration so
     // a new toast lands as the existing stack finishes making room.
-    const stackAnim = { duration: 420, easing: Easing.out(Easing.cubic) };
+    const stackAnim = {
+      duration: animationConfig.stack.duration,
+      easing: Easing.out(Easing.cubic),
+    };
+    // Sileo collapses the shell on the same spring as the morph so the height
+    // retraction breathes with the path's shape change instead of running on a
+    // separate bezier and finishing a beat earlier.
     const stackTiming = (toValue: number) =>
-      shouldDelayCollapseShuffle ?
-        withDelay(stackCollapseDelay, withTiming(toValue, stackAnim))
-      : withTiming(toValue, stackAnim);
+      isCollapsingExpandedStack
+        ? withSpring(toValue, springConfig.morph)
+        : withTiming(toValue, stackAnim);
 
     values.stackY.value = stackTiming(nextTranslate);
     values.stackScale.value = stackTiming(nextScale);
@@ -283,7 +355,12 @@ function useToastEffects(params: IUseToastEffectsParams) {
     isFront,
     isTop,
     springConfig,
-    stackCollapseDelay,
+    animationConfig.stack.duration,
+    animationConfig.stack.minOpacity,
+    animationConfig.stack.minScale,
+    animationConfig.stack.opacityStep,
+    animationConfig.stack.scaleStep,
+    animationConfig.morph.collapseDuration,
     shouldShowExpandedBody,
     stackDepth,
     values,
@@ -295,6 +372,10 @@ function useToastEffects(params: IUseToastEffectsParams) {
       easing: Easing.linear,
     });
   }, [hasBody, shouldAutoExpand, toast, values.progress]);
+}
+
+function getSmoothCollapseDuration(duration: number) {
+  return Math.max(260, duration);
 }
 
 export { useToastEffects };

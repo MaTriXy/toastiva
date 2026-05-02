@@ -1,3 +1,4 @@
+import { StyleSheet } from "react-native";
 import {
   ACTION_SIZE,
   BADGE_SIZE,
@@ -9,7 +10,6 @@ import {
   PILL_PADDING_H,
   TITLE_SIZE,
 } from "../constants";
-import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   toastOuter: { position: "absolute", left: 0, right: 0, alignItems: "center" },
@@ -20,25 +20,33 @@ export const styles = StyleSheet.create({
   toasterStack: { width: "100%" },
   anchorTop: { top: 0 },
   anchorBottom: { bottom: 0 },
-  pressable: { overflow: "visible" },
-  surfaceShell: { position: "relative", overflow: "visible" },
+  pressable: { overflow: "visible", backgroundColor: "transparent" },
+  surfaceShell: {
+    position: "relative",
+    overflow: "visible",
+    // backgroundColor: "red",
+    borderRadius: PH / 2, // ← add this
+  },
   surfaceShadow: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.28,
     shadowRadius: 24,
-    elevation: 12,
   },
   clipContainer: {
     overflow: "hidden",
-    borderRadius: PH / 2,
     alignItems: "center",
   },
   clipFill: { width: "100%", height: "100%" },
   flipX: { transform: [{ scaleX: -1 }] },
-  surfaceCanvas: { position: "relative" },
-  svgBg: { position: "absolute", top: 0, left: 0 },
-  content: { minHeight: PH },
+  surfaceCanvas: { position: "relative", backgroundColor: "transparent" },
+  svgBg: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    backgroundColor: "transparent",
+  },
+  content: { minHeight: PH, backgroundColor: "transparent" },
   header: {
     height: PH,
     paddingHorizontal: PILL_PADDING_H,
@@ -47,6 +55,16 @@ export const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
   headerCentered: { alignSelf: "center" },
+  headerNoIcon: { justifyContent: "center" },
+  headerContentNoIcon: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  headerOverlayNoIcon: {
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+  },
   headerRight: { alignSelf: "flex-end" },
   iconWrap: {
     width: BADGE_SIZE,
@@ -56,12 +74,27 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  iconPlainWrap: {
+    minWidth: BADGE_SIZE,
+    minHeight: BADGE_SIZE,
+    marginRight: ICON_GAP,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   titleText: {
     fontSize: TITLE_SIZE,
     fontWeight: "600",
     flexShrink: 1,
     textAlign: "left",
     letterSpacing: 0.1,
+  },
+  titleTextNoIcon: {
+    fontSize: TITLE_SIZE + 1,
+  },
+  titleNoIconWrap: {
+    minHeight: PH,
+    alignItems: "center",
+    justifyContent: "center",
   },
   body: {
     paddingHorizontal: BODY_PADDING_H,
@@ -93,18 +126,25 @@ export const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 6,
   },
-  descWithAction: { marginBottom: 12 },
+  descWithAction: { marginBottom: 10 },
   textLeft: { textAlign: "left" },
   textCenter: { textAlign: "center" },
   textRight: { textAlign: "right" },
   actionWrap: { marginTop: 0 },
-  actionWrapCenter: { alignItems: "center" },
+  actionWrapCenter: {
+    width: "100%",
+    alignItems: "stretch",
+    marginBottom: 10,
+  },
+  actionWrapStretch: { width: "100%", alignItems: "stretch" },
   actionWrapRight: { alignItems: "flex-end" },
   actionBtn: {
     borderRadius: 999,
-    paddingVertical: 8,
+    minHeight: 40,
+    paddingVertical: 9,
     paddingHorizontal: 16,
     alignItems: "center",
+    justifyContent: "center",
   },
   actionLabel: {
     fontSize: ACTION_SIZE,

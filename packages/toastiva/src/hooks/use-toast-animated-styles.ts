@@ -1,6 +1,7 @@
 import type { IUseToastAnimatedStylesParams } from "../typings";
 import { useAnimatedActionStyle } from "./use-animated-action-styles";
 import { useAnimatedCardStyles } from "./use-animated-card-styles";
+import { useAnimatedClipStyle } from "./use-animated-clip-styles";
 import { useAnimatedContentStyle } from "./use-animated-content-styles";
 import { useAnimatedDescriptionStyle } from "./use-animated-description-styles";
 import { useAnimatedHeaderMaxWidthStyle } from "./use-animated-header-max-styles";
@@ -18,6 +19,7 @@ function useToastAnimatedStyles<T extends IUseToastAnimatedStylesParams>(
     useAnimatedToastBodyStyles<IUseToastAnimatedStylesParams>(params);
   const shellStyle =
     useAnimatedShellStyle<IUseToastAnimatedStylesParams>(params);
+  const clipStyle = useAnimatedClipStyle<IUseToastAnimatedStylesParams>(params);
   const animatedPathProps =
     useAnimatedPathProps<IUseToastAnimatedStylesParams>(params);
   const descriptionStyle =
@@ -39,6 +41,7 @@ function useToastAnimatedStyles<T extends IUseToastAnimatedStylesParams>(
     headerMaxWidthStyle,
     progressStyle,
     cardStyle,
+    clipStyle,
     bodyStyle,
     shellStyle,
   } as const;

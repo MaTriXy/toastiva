@@ -3,6 +3,7 @@ import type { AnimatedProps, AnimatedStyle } from "react-native-reanimated";
 import type { PathProps } from "react-native-svg";
 import type { IToastSharedValue } from "../shared/ToastSharedValue";
 import type { TToastivaHorizontalAlign } from "../toast";
+import type { IResolvedToastAnimationConfig } from "../utils";
 
 type TToastivaAnimatedPathProps = Partial<AnimatedProps<PathProps>>;
 type TToastivaAnimatedViewStyle = AnimatedStyle<ViewStyle>;
@@ -12,6 +13,7 @@ interface IToastAnimatedStylesResult {
   animatedPathProps: TToastivaAnimatedPathProps;
   bodyStyle: TToastivaAnimatedViewStyle;
   cardStyle: TToastivaAnimatedViewStyle;
+  clipStyle: TToastivaAnimatedViewStyle;
   contentStyle: TToastivaAnimatedViewStyle;
   descriptionStyle: TToastivaAnimatedViewStyle;
   headerMaxWidthStyle: TToastivaAnimatedViewStyle;
@@ -20,7 +22,9 @@ interface IToastAnimatedStylesResult {
 }
 
 interface IUseToastAnimatedStylesParams {
+  animationConfig: IResolvedToastAnimationConfig;
   bodyWidth: number;
+  bodyRadius: number;
   collapsedHeight: number;
   expanded: boolean;
   expandedHeight: number;
@@ -28,6 +32,7 @@ interface IUseToastAnimatedStylesParams {
   morphAlign: TToastivaHorizontalAlign;
   isFront: boolean;
   isTop: boolean;
+  noHeader?: boolean;
   pillWidth: number;
   renderHeight: number;
   totalCount: number;

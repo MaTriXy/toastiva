@@ -4,12 +4,16 @@
 node_modules/
 bun.lock
 package-lock.json
+.turbo/
+.pnpm-store/
 
 # Expo
 .expo/
 dist/
 web-build/
 expo-env.d.ts
+.next/
+.open-next/
 
 # Native
 .kotlin/

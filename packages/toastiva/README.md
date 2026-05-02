@@ -54,6 +54,61 @@ toastiva.success("Saved", {
 });
 ```
 
+## Styling
+
+Use `fill`, `stroke`, and `styles` globally on `ToastivaProvider`, or per toast
+from `toastiva.success`, `toastiva.error`, `toastiva.info`, `toastiva.warning`,
+and `toastiva.custom`.
+
+On iOS, the header morph blur can be tinted with `iosBlurTint` or removed with
+`disableIOSBlur`. Both options work globally on `ToastivaProvider` or per toast.
+
+```tsx
+<ToastivaProvider
+  fill="#171717"
+  iosBlurTint="dark"
+  stroke="rgba(255,255,255,0.12)"
+  styles={{
+    title: { color: "#fff" },
+    description: { color: "rgba(255,255,255,0.72)" },
+    badge: { backgroundColor: "rgba(255,255,255,0.10)" },
+    action: { backgroundColor: "rgba(255,255,255,0.10)" },
+    actionText: { color: "#fff" },
+  }}
+>
+  <RootNavigator />
+</ToastivaProvider>
+
+toastiva.success("Saved", {
+  fill: "#0f172a",
+  bodyRadius: 24,
+  animationPreset: "snappy",
+  disableIOSBlur: true,
+  expandedHeight: 128,
+  styles: {
+    title: { color: "#f8fafc", fontWeight: "800" },
+    description: { color: "rgba(248,250,252,0.72)" },
+  },
+});
+```
+
+Animation can also be customized globally or per toast:
+
+```tsx
+<ToastivaProvider
+  animation={{
+    preset: "snappy",
+    mount: { axis: "x", offset: 24, duration: 260 },
+    morph: { collapseDuration: 190, squishDuration: 44 },
+    springs: {
+      morph: { damping: 20, stiffness: 360, mass: 0.8 },
+    },
+  }}
+>
+  <RootNavigator />
+</ToastivaProvider>
+```
+
 ## Build
 
 ```bash

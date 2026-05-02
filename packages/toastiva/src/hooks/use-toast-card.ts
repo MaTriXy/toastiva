@@ -1,15 +1,19 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Platform, useWindowDimensions } from "react-native";
 import { cancelAnimation } from "react-native-reanimated";
-import { SHOW_BODY_DELAY } from "../constants";
+import { DEFAULT_BODY_RADIUS, PH, SHOW_BODY_DELAY } from "../constants";
 import { useToastTheme } from "../context";
 import { iconMap } from "../icons";
-import type { IToastivaProps, TToastivaHorizontalAlign } from "../typings";
+import type {
+  IToastivaProps,
+  TToastivaHorizontalAlign,
+  TToastivaSpringConfig,
+} from "../typings";
 import { ToastivaBodyLayout, ToastivaHorizontalAlign } from "../typings";
 import { getStackAlign } from "../utils/toast-align";
+import { resolveToastAnimationConfig } from "../utils/toast-animation";
 import { getToastHeights, getToastWidths } from "../utils/toast-layout";
 import { getBodyLayout, getToastMeta } from "../utils/toast-meta";
-import { resolveToastSpringConfig } from "../utils/toast-spring";
 import { useToastAnimatedStyles } from "./use-toast-animated-styles";
 import { useToastDismiss } from "./use-toast-dismiss";
 import { useToastEffects } from "./use-toast-effects";
@@ -54,7 +58,23 @@ function useToastCard(props: IToastivaProps) {
     [props.toast, props.defaultShowTimestamp],
   );
   const showProgress = props.toast.showProgress ?? props.defaultShowProgress;
-  const headerMeasureKey = `${props.toast.type}:${props.toast.title}`;
+  const bodyRadius =
+    props.toast.bodyRadius ?? props.defaultBodyRadius ?? DEFAULT_BODY_RADIUS;
+  const styleOverrides = useMemo(
+    () => ({
+      ...props.defaultStyles,
+      ...props.toast.styles,
+    }),
+    [props.defaultStyles, props.toast.styles],
+  );
+  const headerMeasureKey = [
+    props.toast.type,
+    props.toast.title,
+    props.toast.icon ? "custom-icon" : "status-icon",
+    props.toast.showIcon ?? true,
+    props.toast.showIconBadge ?? true,
+    bodyRadius,
+  ].join(":");
   const isFront = props.index === 0;
   const isVisible = props.index < props.visibleCount;
   const isTop = props.position.startsWith("top");
@@ -101,7 +121,9 @@ function useToastCard(props: IToastivaProps) {
     shouldLayoutExpandedContent,
     width,
     props.toast.expandedWidth ?? props.defaultExpandedWidth ?? 0,
+    props.toast.expandedHeight ?? props.defaultExpandedHeight ?? 0,
     props.toast.horizontalInset ?? props.defaultHorizontalInset,
+    bodyRadius,
   ].join("|");
   const values = useToastSharedValues();
   const measure = useToastMeasurements(
@@ -110,10 +132,50 @@ function useToastCard(props: IToastivaProps) {
     props.toast.id,
     props.onHeightChange,
   );
-  const springConfig = useMemo(
-    () => resolveToastSpringConfig(props.defaultSpringConfig),
-    [props.defaultSpringConfig],
+  const animationConfig = useMemo(
+    () =>
+      resolveToastAnimationConfig({
+        animation: {
+          ...props.defaultAnimation,
+          ...props.toast.animation,
+          compact: {
+            ...props.defaultAnimation?.compact,
+            ...props.toast.animation?.compact,
+          },
+          morph: {
+            ...props.defaultAnimation?.morph,
+            ...props.toast.animation?.morph,
+          },
+          mount: {
+            ...props.defaultAnimation?.mount,
+            ...props.toast.animation?.mount,
+          },
+          springs: {
+            ...props.defaultAnimation?.springs,
+            ...props.toast.animation?.springs,
+          },
+          stack: {
+            ...props.defaultAnimation?.stack,
+            ...props.toast.animation?.stack,
+          },
+        },
+        animationPreset:
+          props.toast.animationPreset ?? props.defaultAnimationPreset,
+        springConfig: {
+          ...props.defaultSpringConfig,
+          ...props.toast.springConfig,
+        } as TToastivaSpringConfig,
+      }),
+    [
+      props.defaultAnimation,
+      props.defaultAnimationPreset,
+      props.defaultSpringConfig,
+      props.toast.animation,
+      props.toast.animationPreset,
+      props.toast.springConfig,
+    ],
   );
+  const springConfig = animationConfig.springs;
   const isReadyToExpand =
     shouldLayoutExpandedContent && (measure.isCardHeightCurrent || isWeb);
   useLayoutEffect(() => {
@@ -249,14 +311,44 @@ function useToastCard(props: IToastivaProps) {
       props.defaultExpandedWidth,
       props.toast.horizontalInset,
       props.defaultHorizontalInset,
+      bodyRadius,
     ],
   );
   const heights = useMemo(
-    () => getToastHeights(measure.measuredHeight, props.frontHeight, isFront),
-    [measure.measuredHeight, props.frontHeight, isFront],
+    () =>
+      getToastHeights({
+        actionLabel: props.toast.action?.label,
+        bodyLayout,
+        bodyWidth: widths.bodyWidth,
+        description: props.toast.description,
+        expandedHeightOverride:
+          props.toast.expandedHeight ?? props.defaultExpandedHeight,
+        frontHeight: props.frontHeight,
+        hasCustomContent: Boolean(props.toast.content),
+        isFront,
+        measuredHeight: measure.measuredHeight,
+        meta,
+        showProgress: Boolean(!props.toast.isLoading && showProgress),
+      }),
+    [
+      bodyLayout,
+      widths.bodyWidth,
+      measure.measuredHeight,
+      props.frontHeight,
+      isFront,
+      props.toast.action?.label,
+      props.toast.content,
+      props.toast.description,
+      props.toast.expandedHeight,
+      props.toast.isLoading,
+      props.defaultExpandedHeight,
+      meta,
+      showProgress,
+    ],
   );
   const dismiss = useToastDismiss({
     toast: props.toast,
+    animationConfig,
     expanded: props.expanded,
     hasBody,
     showBody: effectiveShowBody,
@@ -277,36 +369,53 @@ function useToastCard(props: IToastivaProps) {
   const morphAlign = getMorphAlign(bodyLayout, positionAlign);
   const stackAlign = positionAlign;
   const headerAlign = morphAlign;
+  const noHeader =
+    Boolean(props.toast.content) && props.toast.showHeader === false;
+  // noHeader entrance: keep width fixed at bodyWidth (no horizontal morph) and
+  // animate height from PH (thin pill bar) to expandedHeight via morphProgress.
+  // The path renders a rounded rectangle that grows in height — no pill bump,
+  // no width pop, just a clean expand-down reveal of the user's content.
+  const effectivePillWidth = noHeader ? widths.bodyWidth : widths.pillWidth;
+  const effectiveCollapsedHeight = noHeader
+    ? PH
+    : heights.collapsedCardHeight;
   const animated = useToastAnimatedStyles({
+    animationConfig,
     bodyWidth: widths.bodyWidth,
-    collapsedHeight: heights.collapsedCardHeight,
+    bodyRadius,
+    collapsedHeight: effectiveCollapsedHeight,
     expanded: props.expanded,
     expandedHeight: heights.expandedHeight,
     index: props.index,
     morphAlign,
     isFront,
     isTop,
-    pillWidth: widths.pillWidth,
+    noHeader,
+    pillWidth: effectivePillWidth,
     renderHeight: heights.renderHeight,
     totalCount: props.totalCount,
     values,
   });
 
   useToastEffects({
+    animationConfig,
     bodyWidth: widths.bodyWidth,
+    bodyRadius,
     toast: props.toast,
     expanded: props.expanded,
     expandedOffset: props.expandedOffset,
     collapsedOffset: props.collapsedOffset,
     expandedHeight: heights.expandedHeight,
-    collapsedCardHeight: heights.collapsedCardHeight,
+    collapsedCardHeight: effectiveCollapsedHeight,
     hasBody,
     isFront,
-    isMeasured: measure.isPillWidthCurrent || isWeb,
+    isMeasured: noHeader
+      ? measure.isCardHeightCurrent || isWeb
+      : measure.isPillWidthCurrent || isWeb,
     isTop,
     isDismissing: dismiss.isDismissing,
     morphMode: props.morphMode,
-    pillWidth: widths.pillWidth,
+    pillWidth: effectivePillWidth,
     springConfig,
     shouldAutoExpand,
     shouldShowExpandedBody: showExpandedBody,
@@ -319,6 +428,8 @@ function useToastCard(props: IToastivaProps) {
     animated,
     bodyLayout,
     color: theme.colors[props.toast.type],
+    disableIOSBlur:
+      props.toast.disableIOSBlur ?? props.defaultDisableIOSBlur ?? false,
     dismiss,
     gesture: useToastGesture({
       isTop,
@@ -334,13 +445,24 @@ function useToastCard(props: IToastivaProps) {
     isFront,
     morphAlign,
     isTop,
+    iosBlurTint: props.toast.iosBlurTint ?? props.defaultIOSBlurTint,
     isVisible,
     measure,
     measureBody: shouldLayoutExpandedContent,
     meta,
+    noHeader,
     stackAlign,
     showBody: effectiveRenderBody,
     showProgress,
+    stroke:
+      props.toast.stroke ??
+      props.defaultStroke ??
+      theme.surfaceStrokeColors[props.toast.type],
+    styleOverrides,
+    surfaceFill:
+      props.toast.fill ??
+      props.defaultFill ??
+      theme.surfaceColors[props.toast.type],
     widths,
   };
 }

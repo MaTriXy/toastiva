@@ -15,8 +15,11 @@ import type { WithSpringConfig } from "react-native-reanimated";
 function mergeSpringConfig<
   T extends WithSpringConfig,
   U extends TToastivaSpringConfig | undefined,
->(baseConfig: T, springConfig?: U) {
-  return { ...baseConfig, ...(springConfig ?? {}) } as T;
+>(baseConfig: T, ...springConfigs: U[]) {
+  return springConfigs.reduce(
+    (current, nextConfig) => ({ ...current, ...(nextConfig ?? {}) }),
+    baseConfig,
+  ) as T;
 }
 
 function resolveToastSpringConfig(

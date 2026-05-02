@@ -1,12 +1,13 @@
 import type { IToastSharedValue } from "../typings/shared/ToastSharedValue";
 import { useMemo } from "react";
 import { useSharedValue } from "react-native-reanimated";
-import { PH } from "../constants";
+import { DEFAULT_BODY_RADIUS, PH } from "../constants";
 
 function useToastSharedValues(): IToastSharedValue {
   const actionProgress = useSharedValue<number>(0);
   const bodyWidth = useSharedValue<number>(PH);
   const bodyOpacity = useSharedValue<number>(0);
+  const bodyRadius = useSharedValue<number>(DEFAULT_BODY_RADIUS);
   const collapsedHeight = useSharedValue<number>(PH);
   const descriptionProgress = useSharedValue<number>(0);
   const expandedHeight = useSharedValue<number>(PH);
@@ -31,6 +32,7 @@ function useToastSharedValues(): IToastSharedValue {
       actionProgress,
       bodyWidth,
       bodyOpacity,
+      bodyRadius,
       collapsedHeight,
       descriptionProgress,
       expandedHeight,
@@ -54,6 +56,7 @@ function useToastSharedValues(): IToastSharedValue {
       actionProgress,
       bodyWidth,
       bodyOpacity,
+      bodyRadius,
       collapsedHeight,
       descriptionProgress,
       expandedHeight,

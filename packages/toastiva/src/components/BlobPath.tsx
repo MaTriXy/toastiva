@@ -1,4 +1,5 @@
 import type { IBlobPathProps } from "../typings";
+import type { ValueOf } from "../global-ts/value-of";
 import type { ComponentProps } from "react";
 import React, { memo } from "react";
 import Animated from "react-native-reanimated";
@@ -10,9 +11,10 @@ const BlobPath: React.MemoExoticComponent<React.FC<IBlobPathProps>> = memo(
   ({
     ...props
   }: IBlobPathProps): (React.ReactNode & React.ReactElement) | null => {
-    const animatedProps = props.animatedProps as ComponentProps<
-      typeof AnimatedPath
-    >["animatedProps"];
+    const animatedProps = props.animatedProps as ValueOf<
+      ComponentProps<typeof AnimatedPath>,
+      "animatedProps"
+    >;
 
     return (
       <AnimatedPath

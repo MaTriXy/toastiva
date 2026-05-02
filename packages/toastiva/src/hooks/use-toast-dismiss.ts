@@ -1,22 +1,13 @@
 import type { IUseToastDismissParams } from "../typings";
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Easing,
-  withDelay,
-  withSequence,
-  withSpring,
-  withTiming,
-} from "react-native-reanimated";
+import { Easing, withDelay, withTiming } from "react-native-reanimated";
 import { SHOW_BODY_DELAY } from "../constants";
-import {
-  getCollapseDuration,
-  getCollapseSettleDuration,
-  getDisplayDuration,
-} from "../utils/toast-timing";
+import { getCollapseDuration, getDisplayDuration } from "../utils/toast-timing";
 
 function useToastDismiss(params: IUseToastDismissParams) {
   const {
     expanded,
+    animationConfig,
     hasBody,
     showBody,
     isExpandedCandidate,
@@ -25,7 +16,6 @@ function useToastDismiss(params: IUseToastDismissParams) {
     onRemove,
     paused = false,
     shouldAutoExpand,
-    springConfig,
     toast,
     values,
   } = params;
@@ -36,7 +26,6 @@ function useToastDismiss(params: IUseToastDismissParams) {
   const timerStartRef = useRef(0);
   const expandedBodyVisibleRef = useRef(false);
   const collapseDuration = getCollapseDuration(toast);
-  const collapseSettleDuration = getCollapseSettleDuration(toast);
   const displayDuration = getDisplayDuration(toast);
 
   useEffect(() => {
@@ -66,24 +55,34 @@ function useToastDismiss(params: IUseToastDismissParams) {
     setIsDismissing(collapseBeforeExit);
     if (timerRef.current) clearTimeout(timerRef.current);
 
-    values.morphProgress.value = collapseBeforeExit
-      ? withSpring(0, springConfig.morph)
-      : withTiming(0, { duration: 100 });
-    values.bodyOpacity.value = withTiming(0, {
-      duration: collapseBeforeExit ? collapseSettleDuration : 90,
-    });
-    values.descriptionProgress.value = withSpring(0, springConfig.bodyReveal);
-    values.actionProgress.value = withSpring(0, springConfig.bodyReveal);
-    values.squishY.value = withSequence(
-      withTiming(0.88, { duration: 60 }),
-      withSpring(1, springConfig.squish),
-    );
-    values.squishX.value = withSequence(
-      withTiming(1.06, { duration: 60 }),
-      withSpring(1, springConfig.squish),
-    );
+    const collapseShapeDuration = collapseBeforeExit
+      ? getSmoothDismissCollapseDuration(animationConfig.morph.collapseDuration)
+      : 100;
+    const collapseContentDuration = collapseBeforeExit
+      ? getSmoothDismissContentDuration(collapseShapeDuration)
+      : 90;
+    const collapseAnim = {
+      duration: collapseShapeDuration,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
+    };
 
-    const exitDelay = collapseBeforeExit ? collapseDuration + 24 : 40;
+    values.morphProgress.value = withTiming(0, collapseAnim);
+    values.bodyOpacity.value = withTiming(0, {
+      duration: collapseContentDuration,
+      easing: Easing.out(Easing.quad),
+    });
+    values.descriptionProgress.value = withTiming(0, {
+      duration: collapseContentDuration,
+      easing: Easing.out(Easing.cubic),
+    });
+    values.actionProgress.value = withTiming(0, {
+      duration: collapseContentDuration,
+      easing: Easing.out(Easing.cubic),
+    });
+    values.squishY.value = withTiming(1, collapseAnim);
+    values.squishX.value = withTiming(1, collapseAnim);
+
+    const exitDelay = collapseBeforeExit ? collapseShapeDuration + 40 : 40;
     values.removeProgress.value = withDelay(
       exitDelay,
       withTiming(1, { duration: 220, easing: Easing.in(Easing.quad) }),
@@ -92,11 +91,10 @@ function useToastDismiss(params: IUseToastDismissParams) {
     setTimeout(() => onRemove(toast.id), exitDelay + 280);
   }, [
     collapseDuration,
-    collapseSettleDuration,
+    animationConfig.morph.collapseDuration,
     hasBody,
     onRemove,
     paused,
-    springConfig,
     toast,
     values,
   ]);
@@ -135,7 +133,6 @@ function useToastDismiss(params: IUseToastDismissParams) {
     };
   }, [
     collapseDuration,
-    collapseSettleDuration,
     displayDuration,
     expanded,
     handleDismiss,
@@ -149,6 +146,14 @@ function useToastDismiss(params: IUseToastDismissParams) {
   ]);
 
   return { handleDismiss, isDismissing };
+}
+
+function getSmoothDismissCollapseDuration(duration: number) {
+  return Math.max(260, duration);
+}
+
+function getSmoothDismissContentDuration(duration: number) {
+  return Math.max(150, Math.round(duration * 0.62));
 }
 
 export { useToastDismiss };

@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type {
   IToastivaConfig,
   IToastivaData,
@@ -6,15 +7,24 @@ import type {
 
 interface IToastMorphSlotProps {
   bottomInset: number;
-  defaultBodyLayout: IToastivaConfig["bodyLayout"];
-  defaultExpandedWidth: IToastivaConfig["expandedWidth"];
-  defaultSpringConfig: IToastivaConfig["springConfig"];
+  defaultAnimation: ValueOf<IToastivaConfig, "animation">;
+  defaultAnimationPreset: ValueOf<IToastivaConfig, "animationPreset">;
+  defaultBodyLayout: ValueOf<IToastivaConfig, "bodyLayout">;
+  defaultBodyRadius: ValueOf<IToastivaConfig, "bodyRadius">;
+  defaultDisableIOSBlur: ValueOf<IToastivaConfig, "disableIOSBlur">;
+  defaultExpandedHeight: ValueOf<IToastivaConfig, "expandedHeight">;
+  defaultExpandedWidth: ValueOf<IToastivaConfig, "expandedWidth">;
+  defaultFill: ValueOf<IToastivaConfig, "fill">;
+  defaultIOSBlurTint: ValueOf<IToastivaConfig, "iosBlurTint">;
+  defaultSpringConfig: ValueOf<IToastivaConfig, "springConfig">;
+  defaultStroke: ValueOf<IToastivaConfig, "stroke">;
+  defaultStyles: ValueOf<IToastivaConfig, "styles">;
   heightMap: Map<string, number>;
   horizontalInset: number;
   offset: number;
   onHeightChange: (id: string, height: number) => void;
   onRemove: (id: string) => void;
-  position: IToastivaConfig["position"];
+  position: ValueOf<IToastivaConfig, "position">;
   showProgress: boolean;
   showTimestamp: boolean;
   swipeThreshold: number;

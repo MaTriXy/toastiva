@@ -2,15 +2,24 @@ import type {
   IToastivaData,
   TToastivaHorizontalAlign,
   TToastivaPosition,
+  TToastivaPositionInput,
   TToastivaVerticalPosition,
 } from "../typings";
-import { ToastivaHorizontalAlign, ToastivaVerticalPosition } from "../typings";
+import {
+  ToastivaHorizontalAlign,
+  ToastivaPosition,
+  ToastivaVerticalPosition,
+} from "../typings";
+
+const TOASTIVA_POSITIONS = Object.values(
+  ToastivaPosition,
+) as TToastivaPosition[];
 
 function getDefaultVertical(
-  position: TToastivaPosition,
+  position: TToastivaPositionInput,
 ): TToastivaVerticalPosition {
-  return position.startsWith(ToastivaVerticalPosition.Top) ?
-      ToastivaVerticalPosition.Top
+  return position.startsWith(ToastivaVerticalPosition.Top)
+    ? ToastivaVerticalPosition.Top
     : ToastivaVerticalPosition.Bottom;
 }
 
@@ -30,29 +39,32 @@ function getHorizontalPosition(
 
 function resolveToastStackPosition(
   basePosition: TToastivaPosition,
-  vertical?: TToastivaVerticalPosition,
+  position?: TToastivaPositionInput,
 ): TToastivaPosition {
-  const nextVertical = vertical ?? getDefaultVertical(basePosition);
+  if (position && TOASTIVA_POSITIONS.includes(position as TToastivaPosition)) {
+    return position as TToastivaPosition;
+  }
+
+  const nextVertical = position ?? getDefaultVertical(basePosition);
   const horizontal = getHorizontalPosition(basePosition);
   return `${nextVertical}-${horizontal}` as TToastivaPosition;
 }
 
-function filterToastsForVertical(
+function filterToastsForPosition(
   toasts: IToastivaData[],
   basePosition: TToastivaPosition,
-  vertical: TToastivaVerticalPosition,
+  position: TToastivaPosition,
 ) {
   return toasts.filter(
     (toast) =>
-      getDefaultVertical(
-        resolveToastStackPosition(basePosition, toast.position),
-      ) === vertical,
+      resolveToastStackPosition(basePosition, toast.position) === position,
   );
 }
 
 export {
-  filterToastsForVertical,
+  filterToastsForPosition,
   getDefaultVertical,
   getHorizontalPosition,
   resolveToastStackPosition,
+  TOASTIVA_POSITIONS,
 };

@@ -6,7 +6,7 @@ import { useAnimatedStyle } from "react-native-reanimated";
 const useAnimatedToastBodyStyles = <T extends IUseToastAnimatedStylesParams>(
   params: T,
 ) => {
-  const { values } = params;
+  const { values, noHeader = false } = params;
 
   const bodyStyle = useAnimatedStyle(() => {
     const progress = values.morphProgress.value;
@@ -22,7 +22,11 @@ const useAnimatedToastBodyStyles = <T extends IUseToastAnimatedStylesParams>(
     const bodyOpacity = values.bodyOpacity.value;
     const bodyWidth = values.bodyWidth.value;
 
-    const expandedBodyHeight = expandedHeight > PH ? expandedHeight - PH : 0;
+    const expandedBodyHeight = noHeader
+      ? expandedHeight
+      : expandedHeight > PH
+        ? expandedHeight - PH
+        : 0;
 
     // Body element fills the SVG path's body width exactly. Horizontal padding
     // lives in `styles.body.paddingHorizontal` inside this box, which keeps
@@ -38,7 +42,7 @@ const useAnimatedToastBodyStyles = <T extends IUseToastAnimatedStylesParams>(
       paddingBottom: BODY_PADDING_BOTTOM * revealT,
       width: bodyWidth,
     };
-  }, []);
+  }, [noHeader]);
 
   return bodyStyle;
 };

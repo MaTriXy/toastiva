@@ -17,24 +17,30 @@ const ToastMeasure: React.MemoExoticComponent<React.FC<IToastMeasureProps>> =
           onLayout={props.onMeasureCard}
         >
           <View style={[styles.measureCard, { width: props.bodyWidth }]}>
-            <ToastHeader
-              align={props.headerAlign}
-              color={props.color}
-              headerContent={props.toast.headerContent}
-              icon={props.toast.icon}
-              Icon={props.Icon}
-              measure
-              onLayout={props.onMeasureHeader}
-              title={props.toast.title}
-              type={props.toast.type}
-            />
-            {props.measureBody ?
+            {props.noHeader ? null : (
+              <ToastHeader
+                align={props.headerAlign}
+                color={props.color}
+                headerContent={props.toast.headerContent}
+                icon={props.toast.icon}
+                Icon={props.Icon}
+                measure
+                onLayout={props.onMeasureHeader}
+                showIcon={props.toast.showIcon}
+                showIconBadge={props.toast.showIconBadge}
+                styleOverrides={props.styleOverrides}
+                title={props.toast.title}
+                type={props.toast.type}
+              />
+            )}
+            {props.measureBody ? (
               <ToastMeasureBody
                 bodyLayout={props.bodyLayout}
                 meta={props.meta}
+                styleOverrides={props.styleOverrides}
                 toast={props.toast}
               />
-            : null}
+            ) : null}
           </View>
         </View>
       );

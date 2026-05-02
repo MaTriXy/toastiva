@@ -3,5 +3,9 @@
     "source.fixAll": "explicit",
     "source.organizeImports": "explicit",
     "source.sortMembers": "explicit"
+  },
+  "discord.enabled": false,
+  "chat.tools.terminal.autoApprove": {
+    "npx tsc": true
   }
 }

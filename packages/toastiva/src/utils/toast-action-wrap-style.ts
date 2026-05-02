@@ -6,6 +6,7 @@ function getActionWrapStyle(
   layout: ValueOf<IToastMeasureBodyProps, "bodyLayout">,
 ) {
   if (layout === ToastivaBodyLayout.Center) return styles.actionWrapCenter;
+  if (layout === ToastivaBodyLayout.Spread) return styles.actionWrapStretch;
   if (layout === ToastivaBodyLayout.Right) return styles.actionWrapRight;
   return null;
 }

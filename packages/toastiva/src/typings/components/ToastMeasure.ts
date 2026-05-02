@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type { ComponentType } from "react";
 import type { IToastIcon } from "../dummy-icons/Icons";
 import type {
@@ -10,6 +11,7 @@ import type { TToastivaLayoutHandler } from "./common";
 interface IToastMeasureBodyProps {
   bodyLayout: TToastivaBodyLayout;
   meta?: string;
+  styleOverrides?: ValueOf<IToastivaData, "styles">;
   toast: IToastivaData;
 }
 
@@ -21,8 +23,10 @@ interface IToastMeasureProps {
   Icon: ComponentType<IToastIcon>;
   meta?: string;
   measureBody: boolean;
+  noHeader?: boolean;
   onMeasureCard: TToastivaLayoutHandler;
   onMeasureHeader: TToastivaLayoutHandler;
+  styleOverrides?: ValueOf<IToastivaData, "styles">;
   toast: IToastivaData;
 }
 

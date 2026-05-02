@@ -6,9 +6,32 @@ function morphPathCenter(
   th: number,
   t: number,
   cw?: number,
+  radius = 16,
+  noHeader = false,
 ): string {
   "worklet";
   const pr = PH / 2;
+  if (noHeader) {
+    const h = Math.max(PH + (th - PH) * t, PH);
+    const canvasW0 = cw ?? bw;
+    const left = (canvasW0 - bw) / 2;
+    const right = left + bw;
+    const startR = PH / 2;
+    const cr = startR + (Math.min(radius, bw / 2) - startR) * t;
+    const safeR = Math.min(cr, bw / 2, h / 2);
+    return [
+      `M ${left + safeR},0`,
+      `H ${right - safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${right},${safeR}`,
+      `L ${right},${h - safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${right - safeR},${h}`,
+      `H ${left + safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${left},${h - safeR}`,
+      `L ${left},${safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${left + safeR},0`,
+      "Z",
+    ].join(" ");
+  }
   // Use static canvas width (cw) for pill positioning so pillOffset stays
   // constant during expansion (bw springs from pillWidth → expandedWidth).
   // Do not clamp pillW — clipContainer clips visually; SVG uses overflow=visible.
@@ -31,7 +54,7 @@ function morphPathCenter(
   }
 
   const curve = 14 * t;
-  const cr = Math.min(16, (bodyH - PH) * 0.45);
+  const cr = Math.min(Math.max(0, radius), (bodyH - PH) * 0.45);
   const halfWidth = pillW / 2 + ((bw - pillW) / 2) * t;
   const bodyLeft = bw / 2 - halfWidth;
   const bodyRight = bw / 2 + halfWidth;

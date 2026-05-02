@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type { ComponentType } from "react";
 import type { GestureType } from "react-native-gesture-handler";
 import type { WithSpringConfig } from "react-native-reanimated";
@@ -31,21 +32,27 @@ interface IToastCardProps {
   morphSpringConfig?: WithSpringConfig;
   bodyLayout: TToastivaBodyLayout;
   color: string;
+  disableIOSBlur: boolean;
   expanded: boolean;
   gesture: GestureType;
   headerAlign: TToastivaHorizontalAlign;
   heights: IToastCardHeights;
   isFront: boolean;
   isTop: boolean;
+  iosBlurTint?: ValueOf<IToastivaData, "iosBlurTint">;
   measureBody: boolean;
   measure: IToastCardMeasurements;
   meta?: string;
+  noHeader?: boolean;
   morphAlign: TToastivaHorizontalAlign;
   onAction: () => void;
   onPress: () => void;
   showBody: boolean;
   showProgress: boolean;
   stackAlign: TToastivaHorizontalAlign;
+  stroke: string;
+  styleOverrides?: ValueOf<IToastivaData, "styles">;
+  surfaceFill: string;
   toast: IToastivaData;
   widths: IToastCardWidths;
 }

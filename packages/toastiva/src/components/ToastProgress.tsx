@@ -14,11 +14,12 @@ const ToastProgress: React.MemoExoticComponent<React.FC<IToastProgressProps>> =
       const fillStyle =
         props.inline ? styles.inlineProgressFill : styles.progressFill;
       return (
-        <View style={trackStyle}>
+        <View style={[trackStyle, props.trackStyle]}>
           <Animated.View
             style={[
               fillStyle,
               { backgroundColor: props.backgroundColor },
+              props.fillStyle,
               props.style,
             ]}
           />

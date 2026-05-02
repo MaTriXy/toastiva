@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type { ComponentType } from "react";
 import type { WithSpringConfig } from "react-native-reanimated";
 import type { IToastIcon } from "../dummy-icons/Icons";
@@ -12,7 +13,7 @@ import type { TToastivaAnimatedViewStyle } from "./common";
 interface IToastSurfaceProps {
   Icon: ComponentType<IToastIcon>;
   actionStyle: TToastivaAnimatedViewStyle;
-  animatedPathProps: IToastAnimatedStylesResult["animatedPathProps"];
+  animatedPathProps: ValueOf<IToastAnimatedStylesResult, "animatedPathProps">;
   bodyLayout: TToastivaBodyLayout;
   bodyStyle: TToastivaAnimatedViewStyle;
   bodyWidth: number;
@@ -20,16 +21,22 @@ interface IToastSurfaceProps {
   color: string;
   contentStyle: TToastivaAnimatedViewStyle;
   descriptionStyle: TToastivaAnimatedViewStyle;
+  disableIOSBlur: boolean;
   headerAlign: TToastivaHorizontalAlign;
   headerMaxWidthStyle: TToastivaAnimatedViewStyle;
+  iosBlurTint?: ValueOf<IToastivaData, "iosBlurTint">;
   meta?: string;
   mirrored?: boolean;
+  noHeader?: boolean;
   morphSpringConfig?: WithSpringConfig;
   onAction: () => void;
   progressStyle: TToastivaAnimatedViewStyle;
   renderHeight: number;
   showBody: boolean;
   showProgress: boolean;
+  stroke: string;
+  styleOverrides?: ValueOf<IToastivaData, "styles">;
+  surfaceFill: string;
   toast: IToastivaData;
 }
 

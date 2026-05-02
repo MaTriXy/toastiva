@@ -1,0 +1,227 @@
+# Styling
+
+Toastiva is designed to look good out of the box. When you want to tune the
+visuals, you can customize globally from `ToastivaProvider` or override a single
+toast from `toastiva.success`, `toastiva.error`, `toastiva.info`,
+`toastiva.warning`, or `toastiva.custom`.
+
+## Fill Color
+
+Use `fill` to change the SVG body color of the toast. Use `stroke` to change
+the outline.
+
+```tsx
+toastiva.success("Saved", {
+  description: "Your changes are ready.",
+  fill: "#171717",
+  stroke: "rgba(255,255,255,0.12)",
+  styles: {
+    title: { color: "#fff" },
+    description: { color: "rgba(255,255,255,0.72)" },
+  },
+});
+```
+
+## Style Overrides
+
+The `styles` prop lets you override individual React Native style slots.
+
+| Key | Element |
+| --- | --- |
+| `container` | Outer animated toast shell |
+| `content` | Content layer inside the SVG shape |
+| `header` | Header pill container |
+| `title` | Heading text |
+| `badge` | Icon badge/wrapper |
+| `body` | Expanded body container |
+| `description` | Body/description text |
+| `meta` | Timestamp/meta text |
+| `action` | Action button |
+| `actionText` | Action button text |
+| `progressTrack` | Progress track |
+| `progressFill` | Progress fill |
+
+```tsx
+toastiva.info("Dark mode enabled", {
+  description: "Toastiva can be styled per toast.",
+  fill: "#171717",
+  styles: {
+    title: { color: "#ffffff", fontWeight: "800" },
+    description: { color: "rgba(255,255,255,0.72)" },
+    badge: { backgroundColor: "rgba(255,255,255,0.10)" },
+    body: { paddingHorizontal: 18 },
+    progressTrack: { backgroundColor: "rgba(255,255,255,0.10)" },
+    progressFill: { backgroundColor: "#ffffff" },
+  },
+});
+```
+
+## Custom Icons
+
+Pass any React node as `icon` to replace the default status icon. Use
+`showIconBadge={false}` when you want your icon without the circular badge, or
+`showIcon={false}` to remove the icon entirely.
+
+```tsx
+toastiva.warning("Heads up", {
+  icon: <WarningTriangle />,
+  showIconBadge: false,
+});
+```
+
+## Custom Body Content
+
+Use `toastiva.custom` when you want a fully custom body. This is ideal for rich
+cards made from React Native views or `react-native-svg`.
+
+```tsx
+toastiva.custom(<FlightStatusCard />, {
+  title: "Flight status",
+  fill: "#1f1f22",
+  bodyLayout: "center",
+  bodyRadius: 28,
+  showIcon: false,
+  expandedWidth: 459,
+});
+```
+
+## Roundness
+
+Control the body radius with `bodyRadius`. Set it lower for sharper corners or
+higher for a softer card shape.
+
+```tsx
+toastiva.success("Rounded", {
+  description: "This toast has a larger body radius.",
+  bodyRadius: 28,
+});
+```
+
+Higher radius values make the morph shape feel softer, but very large values can
+make the body geometry harder to read in compact layouts. `16` is the default
+and a good balanced value.
+
+## Animation Presets
+
+Use `animationPreset` when you want a different feel without tuning every motion
+value.
+
+```tsx
+<ToastivaProvider animationPreset="snappy">
+  {children}
+</ToastivaProvider>
+
+toastiva.success("Fast save", {
+  animationPreset: "minimal",
+});
+```
+
+Available presets:
+
+| Preset | Feel |
+| --- | --- |
+| `smooth` | Default Toastiva motion |
+| `snappy` | Faster, tighter morphs |
+| `gentle` | Softer and slower movement |
+| `minimal` | Reduced movement and squish |
+
+## Animation Config
+
+Use `animation` for full control. Provider values apply globally, and per-toast
+values override them.
+
+```tsx
+<ToastivaProvider
+  animation={{
+    preset: "snappy",
+    mount: {
+      axis: "x",
+      offset: 24,
+      duration: 260,
+    },
+    stack: {
+      duration: 280,
+      collapseDelay: 120,
+      scaleStep: 0.03,
+      opacityStep: 0.08,
+    },
+    morph: {
+      collapseDuration: 190,
+      squishDuration: 44,
+      squishScaleX: 1.04,
+      squishScaleY: 0.92,
+      actionDelay: 60,
+    },
+    springs: {
+      morph: { damping: 20, stiffness: 360, mass: 0.8 },
+      bodyReveal: { damping: 20, stiffness: 360, mass: 0.7 },
+      squish: { damping: 15, stiffness: 460, mass: 0.6 },
+    },
+  }}
+>
+  {children}
+</ToastivaProvider>
+```
+
+Per toast:
+
+```tsx
+toastiva.error("Could not sync", {
+  animation: {
+    mount: { axis: "y", offset: 12, duration: 180 },
+    morph: { collapseDuration: 160 },
+    springs: {
+      morph: { damping: 26, stiffness: 420 },
+    },
+  },
+});
+```
+
+`springConfig` is still supported as a quick shortcut. It applies to all spring
+segments unless a more specific `animation.springs` value overrides it.
+
+## Global Defaults
+
+Set defaults on `ToastivaProvider` when you want a consistent app-wide style.
+Per-toast options always win over provider defaults.
+
+```tsx
+<ToastivaProvider
+  position="top-right"
+  fill="#171717"
+  stroke="rgba(255,255,255,0.10)"
+  bodyRadius={16}
+  styles={{
+    title: { color: "#ffffff" },
+    description: { color: "rgba(255,255,255,0.72)" },
+    meta: { color: "rgba(255,255,255,0.45)" },
+    badge: { backgroundColor: "rgba(255,255,255,0.10)" },
+    action: { backgroundColor: "rgba(255,255,255,0.10)" },
+    actionText: { color: "#ffffff" },
+  }}
+>
+  {children}
+</ToastivaProvider>
+```
+
+## State Colors
+
+Use `theme` when you want to change Toastiva's default state colors globally.
+
+```tsx
+<ToastivaProvider
+  theme={{
+    colors: {
+      success: "#34d399",
+      error: "#fb7185",
+      warning: "#fbbf24",
+      info: "#60a5fa",
+    },
+    surfaceColors: {
+      success: "#101f18",
+    },
+  }}
+>
+  {children}
+</ToastivaProvider>
+```

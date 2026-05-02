@@ -1,5 +1,5 @@
 import type { ValueOf } from "../../global-ts/value-of";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { StyleProp, TextStyle } from "react-native";
 import type { WithSpringConfig } from "react-native-reanimated";
 import type { IToastIcon } from "../dummy-icons";
@@ -12,12 +12,18 @@ interface IHeaderLayer {
   Icon: ComponentType<IToastIcon>;
   color: string;
   icon?: ValueOf<IToastivaData, "icon">;
+  headerContent?: ReactNode;
+  showIcon?: boolean;
+  showIconBadge?: boolean;
 }
 
 interface IHeaderLayerParams {
   color: string;
   Icon: ComponentType<IToastIcon>;
+  headerContent?: ReactNode;
   icon?: ValueOf<IToastivaData, "icon">;
+  showIcon?: boolean;
+  showIconBadge?: boolean;
   title: string;
   type: TToastivaType;
 }

@@ -1,12 +1,10 @@
 import { useAnimatedStyle } from "react-native-reanimated";
 import type { IUseToastAnimatedStylesParams } from "../typings";
 
-const OFFSET = 50;
-
 const useAnimatedCardStyles = <T extends IUseToastAnimatedStylesParams>(
   params: T,
 ) => {
-  const { values, totalCount, index, isTop } = params;
+  const { animationConfig, values, totalCount, index, isTop } = params;
 
   const DIRECTION = isTop ? -1 : 1;
 
@@ -14,22 +12,23 @@ const useAnimatedCardStyles = <T extends IUseToastAnimatedStylesParams>(
     const mount = values.mountProgress.value;
     const remove = values.removeProgress.value;
 
-    const baseTranslate = DIRECTION * OFFSET;
+    const baseTranslate = DIRECTION * animationConfig.mount.offset;
+    const mountTranslate = (1 - mount) * baseTranslate + remove * baseTranslate;
     const opacity = mount * (1 - remove) * values.stackOpacity.value;
+    const translateX =
+      animationConfig.mount.axis === "x" ? mountTranslate : 0;
+    const translateY =
+      animationConfig.mount.axis === "y" ? mountTranslate : 0;
 
     return {
       opacity: opacity > 0 ? opacity : 0,
       zIndex: totalCount - index,
       transform: [
         {
-          translateY:
-            (1 - mount) * baseTranslate +
-            remove * baseTranslate +
-            values.stackY.value +
-            values.swipeY.value,
+          translateY: translateY + values.stackY.value + values.swipeY.value,
         },
         {
-          translateX: values.shakeX.value + values.swipeX.value,
+          translateX: translateX + values.shakeX.value + values.swipeX.value,
         },
         {
           scaleX: values.stackScale.value * values.squishX.value,

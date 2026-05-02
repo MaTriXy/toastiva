@@ -1,10 +1,5 @@
-import type { IToastivaConfig, IToastivaData } from "../typings";
-import {
-  ToastivaBodyLayout,
-  ToastivaMode,
-  ToastivaPosition,
-  ToastivaVerticalPosition,
-} from "../typings";
+import type { IToastivaConfig, TToastivaPosition } from "../typings";
+import { ToastivaBodyLayout, ToastivaMode, ToastivaPosition } from "../typings";
 import React, { memo, useEffect, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -18,167 +13,185 @@ import {
 import { ToastThemeProvider } from "../context/theme";
 import { useToasterState } from "../hooks/use-toaster-state";
 import { removeToast, updateHeight } from "../store";
-import { filterToastsForVertical } from "../utils/toast-position";
+import {
+  filterToastsForPosition,
+  getDefaultVertical,
+  TOASTIVA_POSITIONS,
+} from "../utils/toast-position";
 import { buildHeightMap } from "../utils/toaster-stack";
 import { ToastMorphSlot } from "./ToastMorphSlot";
 import { ToastStack } from "./ToastStack";
 
-const ToastivaToaster: React.MemoExoticComponent<React.FC<IToastivaConfig>> =
+interface IToastivaToasterProps extends IToastivaConfig {
+  disabled?: boolean;
+}
+
+const ToastivaToaster: React.MemoExoticComponent<
+  React.FC<IToastivaToasterProps>
+> =
   memo(
     ({
+      animation,
+      animationPreset,
       position = ToastivaPosition.TopCenter,
       duration = DEFAULT_DURATION,
       visibleToasts = DEFAULT_VISIBLE_TOASTS,
       gap = DEFAULT_GAP,
       expand = false,
       bodyLayout = ToastivaBodyLayout.Spread,
+      bodyRadius,
+      disableIOSBlur,
+      expandedHeight,
       expandedWidth,
+      fill,
       horizontalInset = DEFAULT_HORIZONTAL_INSET,
+      iosBlurTint,
       mode = ToastivaMode.Stack,
       offset: offsetProp = DEFAULT_OFFSET,
       showProgress = true,
       showTimestamp = true,
       springConfig,
+      stroke,
+      styles: styleOverrides,
       swipeToDismiss = true,
       swipeThreshold = DEFAULT_SWIPE_THRESHOLD,
       theme,
-    }: IToastivaConfig): React.JSX.Element | null => {
+      disabled = false,
+    }: IToastivaToasterProps): React.JSX.Element | null => {
       const { bottom, top } = useSafeAreaInsets();
       const { heights, toasts } = useToasterState<number>(duration);
       const heightMap = useMemo(() => buildHeightMap(heights), [heights]);
-      const [expandedTop, setExpandedTop] = useState<boolean>(expand);
-      const [expandedBottom, setExpandedBottom] = useState<boolean>(expand);
-      const topToasts = useMemo<IToastivaData[]>(
-        () =>
-          filterToastsForVertical(
-            toasts,
-            position,
-            ToastivaVerticalPosition.Top,
-          ),
-        [position, toasts],
+      const [expandedSlots, setExpandedSlots] = useState(() =>
+        createExpandedSlots(expand),
       );
-      const bottomToasts = useMemo<IToastivaData[]>(
+      const positionedToasts = useMemo(
         () =>
-          filterToastsForVertical(
-            toasts,
-            position,
-            ToastivaVerticalPosition.Bottom,
-          ),
+          TOASTIVA_POSITIONS.map((slotPosition) => ({
+            position: slotPosition,
+            toasts: filterToastsForPosition(toasts, position, slotPosition),
+            vertical: getDefaultVertical(slotPosition),
+          })),
         [position, toasts],
       );
       const isMorphMode = mode === ToastivaMode.Morph;
 
-      useEffect(() => setExpandedTop(expand), [expand]);
-      useEffect(() => setExpandedBottom(expand), [expand]);
       useEffect(() => {
-        if (topToasts.length <= 1) setExpandedTop(false);
-      }, [topToasts.length]);
+        if (disabled) return;
+        setExpandedSlots(createExpandedSlots(expand));
+      }, [disabled, expand]);
       useEffect(() => {
-        if (bottomToasts.length <= 1) setExpandedBottom(false);
-      }, [bottomToasts.length]);
+        if (disabled) return;
+        setExpandedSlots((current) => {
+          let changed = false;
+          const next = { ...current };
+          positionedToasts.forEach(({ position: slotPosition, toasts }) => {
+            if (toasts.length <= 1 && next[slotPosition]) {
+              next[slotPosition] = false;
+              changed = true;
+            }
+          });
+          return changed ? next : current;
+        });
+      }, [disabled, positionedToasts]);
       useEffect(() => {
+        if (disabled) return;
         if (!isMorphMode) return;
-        topToasts.slice(1).forEach((toast) => removeToast(toast.id));
-        bottomToasts.slice(1).forEach((toast) => removeToast(toast.id));
-      }, [bottomToasts, isMorphMode, topToasts]);
+        positionedToasts.forEach(({ toasts }) => {
+          toasts.slice(1).forEach((toast) => removeToast(toast.id));
+        });
+      }, [disabled, isMorphMode, positionedToasts]);
 
-      if (!toasts.length) return null;
-      if (isMorphMode) {
-        return (
-          <ToastThemeProvider theme={theme}>
-            <ToastMorphSlot
-              bottomInset={bottom}
-              heightMap={heightMap}
-              horizontalInset={horizontalInset}
-              offset={offsetProp}
-              onHeightChange={updateHeight}
-              onRemove={removeToast}
-              position={position}
-              showProgress={showProgress}
-              showTimestamp={showTimestamp}
-              swipeThreshold={swipeThreshold}
-              swipeToDismiss={swipeToDismiss}
-              toasts={bottomToasts}
-              defaultBodyLayout={bodyLayout}
-              defaultExpandedWidth={expandedWidth}
-              defaultSpringConfig={springConfig}
-              topInset={top}
-              vertical="bottom"
-            />
-            <ToastMorphSlot
-              bottomInset={bottom}
-              heightMap={heightMap}
-              horizontalInset={horizontalInset}
-              offset={offsetProp}
-              onHeightChange={updateHeight}
-              onRemove={removeToast}
-              position={position}
-              swipeThreshold={swipeThreshold}
-              showProgress={showProgress}
-              showTimestamp={showTimestamp}
-              swipeToDismiss={swipeToDismiss}
-              toasts={topToasts}
-              defaultBodyLayout={bodyLayout}
-              defaultExpandedWidth={expandedWidth}
-              defaultSpringConfig={springConfig}
-              topInset={top}
-              vertical="top"
-            />
-          </ToastThemeProvider>
-        );
-      }
-
-      return (
+      if (disabled || !toasts.length) return null;
+      const content = isMorphMode ? (
         <ToastThemeProvider theme={theme}>
-          <ToastStack
-            bottomInset={bottom}
-            expand={expandedBottom}
-            gap={gap}
-            heightMap={heightMap}
-            horizontalInset={horizontalInset}
-            offset={offsetProp}
-            onHeightChange={updateHeight}
-            onRemove={removeToast}
-            position={position}
-            setExpanded={setExpandedBottom}
-            showProgress={showProgress}
-            showTimestamp={showTimestamp}
-            swipeThreshold={swipeThreshold}
-            swipeToDismiss={swipeToDismiss}
-            toasts={bottomToasts}
-            defaultBodyLayout={bodyLayout}
-            defaultExpandedWidth={expandedWidth}
-            defaultSpringConfig={springConfig}
-            topInset={top}
-            vertical="bottom"
-            visibleToasts={visibleToasts}
-          />
-          <ToastStack
-            bottomInset={bottom}
-            expand={expandedTop}
-            gap={gap}
-            heightMap={heightMap}
-            horizontalInset={horizontalInset}
-            offset={offsetProp}
-            onHeightChange={updateHeight}
-            onRemove={removeToast}
-            position={position}
-            setExpanded={setExpandedTop}
-            showProgress={showProgress}
-            showTimestamp={showTimestamp}
-            swipeThreshold={swipeThreshold}
-            swipeToDismiss={swipeToDismiss}
-            toasts={topToasts}
-            defaultBodyLayout={bodyLayout}
-            defaultExpandedWidth={expandedWidth}
-            defaultSpringConfig={springConfig}
-            topInset={top}
-            vertical="top"
-            visibleToasts={visibleToasts}
-          />
+          {positionedToasts.map((slot) => (
+            <ToastMorphSlot
+              key={slot.position}
+              bottomInset={bottom}
+              heightMap={heightMap}
+              horizontalInset={horizontalInset}
+              offset={offsetProp}
+              onHeightChange={updateHeight}
+              onRemove={removeToast}
+              position={slot.position}
+              showProgress={showProgress}
+              showTimestamp={showTimestamp}
+              swipeThreshold={swipeThreshold}
+              swipeToDismiss={swipeToDismiss}
+              toasts={slot.toasts}
+              defaultAnimation={animation}
+              defaultAnimationPreset={animationPreset}
+              defaultBodyLayout={bodyLayout}
+              defaultBodyRadius={bodyRadius}
+              defaultDisableIOSBlur={disableIOSBlur}
+              defaultExpandedHeight={expandedHeight}
+              defaultExpandedWidth={expandedWidth}
+              defaultFill={fill}
+              defaultIOSBlurTint={iosBlurTint}
+              defaultSpringConfig={springConfig}
+              defaultStroke={stroke}
+              defaultStyles={styleOverrides}
+              topInset={top}
+              vertical={slot.vertical}
+            />
+          ))}
+        </ToastThemeProvider>
+      ) : (
+        <ToastThemeProvider theme={theme}>
+          {positionedToasts.map((slot) => (
+            <ToastStack
+              key={slot.position}
+              bottomInset={bottom}
+              expand={expandedSlots[slot.position]}
+              gap={gap}
+              heightMap={heightMap}
+              horizontalInset={horizontalInset}
+              offset={offsetProp}
+              onHeightChange={updateHeight}
+              onRemove={removeToast}
+              position={slot.position}
+              setExpanded={(nextValue) =>
+                setExpandedSlots((current) => ({
+                  ...current,
+                  [slot.position]:
+                    typeof nextValue === "function"
+                      ? nextValue(current[slot.position])
+                      : nextValue,
+                }))
+              }
+              showProgress={showProgress}
+              showTimestamp={showTimestamp}
+              swipeThreshold={swipeThreshold}
+              swipeToDismiss={swipeToDismiss}
+              toasts={slot.toasts}
+              defaultAnimation={animation}
+              defaultAnimationPreset={animationPreset}
+              defaultBodyLayout={bodyLayout}
+              defaultBodyRadius={bodyRadius}
+              defaultDisableIOSBlur={disableIOSBlur}
+              defaultExpandedHeight={expandedHeight}
+              defaultExpandedWidth={expandedWidth}
+              defaultFill={fill}
+              defaultIOSBlurTint={iosBlurTint}
+              defaultSpringConfig={springConfig}
+              defaultStroke={stroke}
+              defaultStyles={styleOverrides}
+              topInset={top}
+              vertical={slot.vertical}
+              visibleToasts={visibleToasts}
+            />
+          ))}
         </ToastThemeProvider>
       );
+
+      return content;
     },
   );
+
+function createExpandedSlots(expanded: boolean) {
+  return Object.fromEntries(
+    TOASTIVA_POSITIONS.map((position) => [position, expanded]),
+  ) as Record<TToastivaPosition, boolean>;
+}
 
 export { ToastivaToaster };

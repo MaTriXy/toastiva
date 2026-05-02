@@ -1,9 +1,14 @@
 import type { IToastivaData } from "../toast";
-import type { IResolvedToastSpringConfig } from "../utils";
+import type {
+  IResolvedToastAnimationConfig,
+  IResolvedToastSpringConfig,
+} from "../utils";
 import type { IToastSharedValue } from "./ToastSharedValue";
 
 interface IUseToastEffectsParams {
+  animationConfig: IResolvedToastAnimationConfig;
   bodyWidth: number;
+  bodyRadius: number;
   collapsedOffset: number;
   collapsedCardHeight: number;
   expanded: boolean;

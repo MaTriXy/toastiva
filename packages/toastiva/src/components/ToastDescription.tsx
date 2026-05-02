@@ -17,12 +17,20 @@ const ToastDescription: React.MemoExoticComponent<
       return (
         <View style={styles.descRow}>
           <View style={styles.descTextWrap}>
-            <Text style={[styles.descText, styles.textLeft]}>
+            <Text
+              style={[
+                styles.descText,
+                styles.textLeft,
+                props.styleOverrides?.description,
+              ]}
+            >
               {props.description}
             </Text>
           </View>
           {props.meta ?
-            <Text style={styles.descMeta}>{props.meta}</Text>
+            <Text style={[styles.descMeta, props.styleOverrides?.meta]}>
+              {props.meta}
+            </Text>
           : null}
         </View>
       );
@@ -35,9 +43,25 @@ const ToastDescription: React.MemoExoticComponent<
 
     return (
       <View>
-        <Text style={[styles.descText, alignStyle]}>{props.description}</Text>
+        <Text
+          style={[
+            styles.descText,
+            alignStyle,
+            props.styleOverrides?.description,
+          ]}
+        >
+          {props.description}
+        </Text>
         {props.meta ?
-          <Text style={[styles.descMetaInline, alignStyle]}>{props.meta}</Text>
+          <Text
+            style={[
+              styles.descMetaInline,
+              alignStyle,
+              props.styleOverrides?.meta,
+            ]}
+          >
+            {props.meta}
+          </Text>
         : null}
       </View>
     );

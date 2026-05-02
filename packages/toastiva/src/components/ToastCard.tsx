@@ -14,13 +14,17 @@ const ToastCard: React.MemoExoticComponent<React.FC<IToastCardProps>> = memo(
   }: IToastCardProps): (React.ReactNode & React.ReactElement) | null => {
     const mirrored = props.morphAlign === ToastivaHorizontalAlign.Right;
     const stackAlign =
-      props.stackAlign === ToastivaHorizontalAlign.Center ? "center"
-      : props.stackAlign === ToastivaHorizontalAlign.Right ? "flex-end"
-      : "flex-start";
+      props.stackAlign === ToastivaHorizontalAlign.Center
+        ? "center"
+        : props.stackAlign === ToastivaHorizontalAlign.Right
+          ? "flex-end"
+          : "flex-start";
     const morphAlign =
-      props.morphAlign === ToastivaHorizontalAlign.Center ? "center"
-      : props.morphAlign === ToastivaHorizontalAlign.Right ? "flex-end"
-      : "flex-start";
+      props.morphAlign === ToastivaHorizontalAlign.Center
+        ? "center"
+        : props.morphAlign === ToastivaHorizontalAlign.Right
+          ? "flex-end"
+          : "flex-start";
 
     return (
       <Animated.View
@@ -36,7 +40,8 @@ const ToastCard: React.MemoExoticComponent<React.FC<IToastCardProps>> = memo(
             <Animated.View
               style={[
                 styles.surfaceShell,
-                Platform.OS === "web" ? null : styles.surfaceShadow,
+                Platform.OS === "ios" ? styles.surfaceShadow : null,
+                props.styleOverrides?.container,
                 props.animated.shellStyle,
               ]}
             >
@@ -45,6 +50,7 @@ const ToastCard: React.MemoExoticComponent<React.FC<IToastCardProps>> = memo(
                   styles.clipContainer,
                   styles.clipFill,
                   { alignItems: morphAlign },
+                  props.animated.clipStyle,
                 ]}
               >
                 <ToastSurface
@@ -61,14 +67,20 @@ const ToastCard: React.MemoExoticComponent<React.FC<IToastCardProps>> = memo(
                   canInteract={props.isFront || props.expanded}
                   contentStyle={props.animated.contentStyle}
                   descriptionStyle={props.animated.descriptionStyle}
+                  disableIOSBlur={props.disableIOSBlur}
                   meta={props.meta}
+                  iosBlurTint={props.iosBlurTint}
                   mirrored={mirrored}
                   morphSpringConfig={props.morphSpringConfig}
+                  noHeader={props.noHeader}
                   onAction={props.onAction}
                   progressStyle={props.animated.progressStyle}
                   renderHeight={props.heights.renderHeight}
                   showBody={props.showBody}
                   showProgress={props.showProgress}
+                  stroke={props.stroke}
+                  styleOverrides={props.styleOverrides}
+                  surfaceFill={props.surfaceFill}
                 />
               </Animated.View>
             </Animated.View>
@@ -80,8 +92,10 @@ const ToastCard: React.MemoExoticComponent<React.FC<IToastCardProps>> = memo(
               Icon={props.Icon}
               meta={props.meta}
               measureBody={props.measureBody}
+              noHeader={props.noHeader}
               onMeasureCard={props.measure.onMeasureCard}
               onMeasureHeader={props.measure.onMeasureHeader}
+              styleOverrides={props.styleOverrides}
               toast={props.toast}
             />
           </Pressable>

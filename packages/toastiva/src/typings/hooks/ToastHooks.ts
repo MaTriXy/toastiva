@@ -1,7 +1,10 @@
 import type { IToastSharedValue } from "../shared/ToastSharedValue";
 import type { IHeightEntry } from "../store/ToastStore";
 import type { IToastivaData } from "../toast";
-import type { IResolvedToastSpringConfig } from "../utils";
+import type {
+  IResolvedToastAnimationConfig,
+  IResolvedToastSpringConfig,
+} from "../utils";
 
 interface IUseToastDismissParams {
   expanded: boolean;
@@ -11,6 +14,7 @@ interface IUseToastDismissParams {
   isVisible: boolean;
   onRemove: (id: string) => void;
   paused?: boolean;
+  animationConfig: IResolvedToastAnimationConfig;
   shouldAutoExpand: boolean;
   springConfig: IResolvedToastSpringConfig;
   showBody: boolean;

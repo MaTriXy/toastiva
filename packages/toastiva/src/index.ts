@@ -1,6 +1,7 @@
 export { ToastivaProvider } from "./components/ToastivaProvider";
 export { toastiva } from "./store";
 export {
+  ToastivaAnimationPreset,
   ToastivaBodyLayout,
   ToastivaMode,
   ToastivaPosition,
@@ -9,15 +10,24 @@ export {
 } from "./typings";
 export type {
   IToastivaAction,
+  IToastivaAnimationConfig,
+  IToastivaAnimationSpringConfig,
+  IToastivaCompactAnimationConfig,
   IToastivaConfig,
+  IToastivaMorphAnimationConfig,
+  IToastivaMountAnimationConfig,
   IToastivaOptions,
   IToastivaPromiseAction,
   IToastivaPromiseData,
   IToastivaPromiseDescription,
   IToastivaPromiseIcon,
   IToastivaProviderProps,
+  IToastivaStackAnimationConfig,
+  IToastivaStyleOverrides,
   IToastivaTheme,
   IToastivaTiming,
+  TToastivaAnimationAxis,
+  TToastivaAnimationPreset,
   TToastivaBodyLayout,
   TToastivaMode,
   TToastivaPosition,

@@ -4,6 +4,7 @@ interface IToastSharedValue {
   actionProgress: SharedValue<number>;
   bodyWidth: SharedValue<number>;
   bodyOpacity: SharedValue<number>;
+  bodyRadius: SharedValue<number>;
   collapsedHeight: SharedValue<number>;
   descriptionProgress: SharedValue<number>;
   expandedHeight: SharedValue<number>;

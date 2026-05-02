@@ -74,14 +74,23 @@ const ToastStack: React.MemoExoticComponent<React.FC<IToastStackProps>> = memo(
               gap={props.gap}
               swipeToDismiss={props.swipeToDismiss}
               swipeThreshold={props.swipeThreshold}
+              defaultAnimation={props.defaultAnimation}
+              defaultAnimationPreset={props.defaultAnimationPreset}
               defaultBodyLayout={
                 props.defaultBodyLayout ?? ToastivaBodyLayout.Spread
               }
+              defaultBodyRadius={props.defaultBodyRadius}
+              defaultDisableIOSBlur={props.defaultDisableIOSBlur}
+              defaultExpandedHeight={props.defaultExpandedHeight}
               defaultExpandedWidth={props.defaultExpandedWidth}
+              defaultFill={props.defaultFill}
               defaultHorizontalInset={props.horizontalInset}
+              defaultIOSBlurTint={props.defaultIOSBlurTint}
               defaultShowProgress={props.showProgress}
               defaultShowTimestamp={props.showTimestamp}
               defaultSpringConfig={props.defaultSpringConfig}
+              defaultStroke={props.defaultStroke}
+              defaultStyles={props.defaultStyles}
               onRemove={props.onRemove}
               onHeightChange={props.onHeightChange}
               onStackPress={toggleExpanded}
@@ -102,35 +111,35 @@ function getToastStackRenderData(props: IToastStackProps) {
   const isCenter = horizontalPosition === ToastivaHorizontalAlign.Center;
   const isRight = horizontalPosition === ToastivaHorizontalAlign.Right;
   const edgeOffset =
-    (props.vertical === ToastivaVerticalPosition.Top ?
-      props.topInset
-    : props.bottomInset) + props.offset;
+    (props.vertical === ToastivaVerticalPosition.Top
+      ? props.topInset
+      : props.bottomInset) + props.offset;
 
   return {
-    alignStyle:
-      isCenter ? styles.toasterCenter
-      : isRight ?
-        {
-          left: 0,
-          right: 0,
-          alignItems: "flex-end" as const,
-          paddingRight: props.horizontalInset,
-        }
-      : {
-          left: 0,
-          right: 0,
-          alignItems: "flex-start" as const,
-          paddingLeft: props.horizontalInset,
-        },
+    alignStyle: isCenter
+      ? styles.toasterCenter
+      : isRight
+        ? {
+            left: 0,
+            right: 0,
+            alignItems: "flex-end" as const,
+            paddingRight: props.horizontalInset,
+          }
+        : {
+            left: 0,
+            right: 0,
+            alignItems: "flex-start" as const,
+            paddingLeft: props.horizontalInset,
+          },
     collapsedOffsets: getCollapsedOffsets(
       props.toasts,
       props.visibleToasts,
       props.gap,
     ),
     edgeStyle:
-      props.vertical === ToastivaVerticalPosition.Top ?
-        { top: edgeOffset }
-      : { bottom: edgeOffset },
+      props.vertical === ToastivaVerticalPosition.Top
+        ? { top: edgeOffset }
+        : { bottom: edgeOffset },
     expandedOffsets: getExpandedOffsets(
       props.toasts,
       props.heightMap,

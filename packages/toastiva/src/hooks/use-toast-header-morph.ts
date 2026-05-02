@@ -22,10 +22,29 @@ import {
 import { useToastHeaderAnimatedStyles } from "./use-toast-header-animated-styles";
 
 function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
-  const { color, Icon, icon, measure, title, type } = params;
-  const headerKey = `${type}:${title}`;
+  const {
+    color,
+    headerContent,
+    Icon,
+    icon,
+    measure,
+    showIcon,
+    showIconBadge,
+    title,
+    type,
+  } = params;
+  const headerKey = `${type}:${title}:${headerContent ? "custom" : "default"}`;
   const [headerLayer, setHeaderLayer] = useState(() => ({
-    current: createHeaderLayer({ color, Icon, icon, title, type }),
+    current: createHeaderLayer({
+      color,
+      headerContent,
+      Icon,
+      icon,
+      showIcon,
+      showIconBadge,
+      title,
+      type,
+    }),
     prev: null as ReturnType<typeof createHeaderLayer> | null,
   }));
   const prevHeaderKeyRef = useRef(headerKey);
@@ -62,8 +81,11 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
   useLayoutEffect(() => {
     const nextHeaderLayer = createHeaderLayer({
       color,
+      headerContent,
       Icon,
       icon,
+      showIcon,
+      showIconBadge,
       title,
       type,
     });
@@ -124,7 +146,10 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
     color,
     Icon,
     icon,
+    headerContent,
     measure,
+    showIcon,
+    showIconBadge,
     title,
     type,
     currentTitleProgress,

@@ -1,3 +1,7 @@
+import { BlurView } from "expo-blur";
+import React, { memo } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import Animated from "react-native-reanimated";
 import { useToastHeaderMorph } from "../hooks/use-toast-header-morph";
 import { styles } from "../styles/toast.styles";
 import type { IToastHeaderProps } from "../typings";
@@ -9,10 +13,6 @@ import {
   headerOverlayContentStyle,
   headerRootStyle,
 } from "../utils/toast-header-animation";
-import { BlurView } from "expo-blur";
-import React, { memo } from "react";
-import { Platform, StyleSheet, View } from "react-native";
-import Animated from "react-native-reanimated";
 import { ToastHeaderContent } from "./ToastHeaderContent";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -23,27 +23,41 @@ const ToastHeader: React.NamedExoticComponent<IToastHeaderProps> = memo(
   ): (React.ReactNode & React.ReactElement) | null {
     const baseStyle = [
       props.measure ? styles.measureHeader : styles.header,
-      props.align === ToastivaHorizontalAlign.Center ?
-        styles.headerCentered
-      : null,
+      props.align === ToastivaHorizontalAlign.Center
+        ? styles.headerCentered
+        : null,
+      props.showIcon === false ? styles.headerNoIcon : null,
       props.align === ToastivaHorizontalAlign.Right ? styles.headerRight : null,
+      props.styleOverrides?.header,
       headerRootStyle,
     ];
-    // maxWidthStyle (= { maxWidth: pillWidth.value }) constrains the header
-    // to the animated pill width so content never bleeds past the rounded
-    // pill boundary. The overlay layer has no `right` constraint, so it
-    // won't compress/stretch as maxWidth changes (no "text input" feel).
+
     const liveStyle = [...baseStyle, props.maxWidthStyle];
     const morph = useToastHeaderMorph({
       color: props.color,
+      headerContent: props.headerContent,
       Icon: props.Icon,
       icon: props.icon,
       measure: props.measure,
       morphSpringConfig: props.morphSpringConfig,
+      showIcon: props.showIcon,
+      showIconBadge: props.showIconBadge,
       title: props.title,
       type: props.type,
     });
     const hasPrevLayer = Boolean(morph.headerLayer.prev);
+    const renderHeaderLayer = (
+      layer: typeof morph.headerLayer.current,
+      titleStyle = getHeaderTitleStyle(props),
+    ) =>
+      layer.headerContent ?? (
+        <ToastHeaderContent
+          align={props.align}
+          layer={layer}
+          styleOverrides={props.styleOverrides}
+          titleStyle={titleStyle}
+        />
+      );
 
     if (props.measure) {
       return (
@@ -52,6 +66,7 @@ const ToastHeader: React.NamedExoticComponent<IToastHeaderProps> = memo(
             <ToastHeaderContent
               align={props.align}
               layer={createHeaderLayer(props)}
+              styleOverrides={props.styleOverrides}
               titleStyle={getHeaderTitleStyle(props)}
             />
           )}
@@ -59,61 +74,55 @@ const ToastHeader: React.NamedExoticComponent<IToastHeaderProps> = memo(
       );
     }
 
-    // If caller supplies fully custom header content, skip the morph
-    // cross-fade system and just render it directly. The pill still resizes
-    // around the content via the container's onLayout measurement.
-    if (props.headerContent) {
-      return (
-        <Animated.View
-          style={liveStyle}
-          onLayout={props.onLayout}
-          collapsable={false}
-        >
-          {props.headerContent}
-        </Animated.View>
-      );
-    }
-
     return (
       <Animated.View
-        style={[liveStyle, morph.animatedFilterStyle]}
+        style={[
+          liveStyle,
+          morph.animatedFilterStyle,
+          {
+            backgroundColor: "transparent",
+          },
+        ]}
         onLayout={props.onLayout}
         collapsable={false}
       >
-        {hasPrevLayer ?
+        {hasPrevLayer ? (
           <Animated.View
             key={morph.headerLayer.prev!.key}
             pointerEvents="none"
-            style={[headerOverlayContentStyle, morph.prevHeaderStyle]}
+            style={[
+              headerOverlayContentStyle,
+              props.showIcon === false ? styles.headerOverlayNoIcon : null,
+              morph.prevHeaderStyle,
+            ]}
           >
-            <ToastHeaderContent
-              align={props.align}
-              layer={morph.headerLayer.prev!}
-              titleStyle={getHeaderTitleStyle(props)}
-            />
+            {renderHeaderLayer(morph.headerLayer.prev!)}
           </Animated.View>
-        : null}
+        ) : null}
 
         <Animated.View
           key={morph.headerLayer.current.key}
           style={[
             headerContentStyle,
+            props.showIcon === false ? styles.headerContentNoIcon : null,
             hasPrevLayer ? morph.currentHeaderStyle : null,
           ]}
         >
-          <ToastHeaderContent
-            align={props.align}
-            layer={morph.headerLayer.current}
-            titleStyle={getHeaderTitleStyle(props)}
-          />
+          {renderHeaderLayer(morph.headerLayer.current)}
         </Animated.View>
-
-        {Platform.OS === "ios" && (
+        {Platform.OS === "ios" && !props.disableIOSBlur ? (
           <AnimatedBlurView
             animatedProps={morph.animatedBlurProps}
-            style={StyleSheet.absoluteFill}
+            style={[
+              StyleSheet.absoluteFill,
+              {
+                borderRadius: 9999,
+                overflow: "hidden",
+              },
+            ]}
+            tint={props.iosBlurTint}
           />
-        )}
+        ) : null}
       </Animated.View>
     );
   },

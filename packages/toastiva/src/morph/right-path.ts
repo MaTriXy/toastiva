@@ -26,9 +26,32 @@ function morphPathRight(
   th: number,
   t: number,
   cw?: number,
+  radius = 16,
+  noHeader = false,
 ): string {
   "worklet";
   const pr = PH / 2;
+  if (noHeader) {
+    const h = Math.max(PH + (th - PH) * t, PH);
+    const canvasW0 = cw ?? bw;
+    const right = canvasW0;
+    const left = right - bw;
+    const startR = PH / 2;
+    const cr = startR + (Math.min(radius, bw / 2) - startR) * t;
+    const safeR = Math.min(cr, bw / 2, h / 2);
+    return [
+      `M ${left + safeR},0`,
+      `H ${right - safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${right},${safeR}`,
+      `L ${right},${h - safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${right - safeR},${h}`,
+      `H ${left + safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${left},${h - safeR}`,
+      `L ${left},${safeR}`,
+      `A ${safeR},${safeR} 0 0 1 ${left + safeR},0`,
+      "Z",
+    ].join(" ");
+  }
   const canvasW = cw ?? bw;
   const pillW = pw;
   const pillLeft = canvasW - pillW;
@@ -48,7 +71,7 @@ function morphPathRight(
   }
 
   const curve = 14 * t;
-  const cr = Math.min(16, (bodyH - PH) * 0.45);
+  const cr = Math.min(Math.max(0, radius), (bodyH - PH) * 0.45);
   const bodyLeft = bw - (pillW + (bw - pillW) * t);
   const bodyTop = PH - curve;
   const qStartX = Math.max(bodyLeft + cr, pillLeft - curve);

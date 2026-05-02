@@ -2,10 +2,11 @@ export { getStackAlign } from "./toast-align";
 export { getToastHeights, getToastWidths } from "./toast-layout";
 export { getBodyLayout, getBodyTextAlign, getToastMeta } from "./toast-meta";
 export {
-  filterToastsForVertical,
+  filterToastsForPosition,
   getDefaultVertical,
   getHorizontalPosition,
   resolveToastStackPosition,
+  TOASTIVA_POSITIONS,
 } from "./toast-position";
 export {
   getBodyFadeDelay,
@@ -25,6 +26,11 @@ export {
   getFrontHeight,
 } from "./toaster-stack";
 export { mergeSpringConfig, resolveToastSpringConfig } from "./toast-spring";
+export {
+  mergeAnimationConfig,
+  resolveToastAnimationConfig,
+  toastivaAnimationPresets,
+} from "./toast-animation";
 export {
   showAccountsToast,
   showAddMoneyToast,

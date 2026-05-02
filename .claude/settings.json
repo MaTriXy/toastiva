@@ -1,11 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(wc -l /Users/rit3zhcx/expo-gooey-tabs/goey-toast/src/icons/*.tsx)",
-      "Bash(npx expo:*)",
-      "Bash(kill %1)",
-      "Bash(curl -s http://localhost:8081/src/app/index.bundle?platform=ios)",
-      "Bash(curl -s \"http://localhost:8081/src/app/index.bundle?platform=ios\")"
+      "Bash(rm /Users/rit3zhcx/Desktop/expo-gooey-toast/.git/index.lock)",
+      "Bash(git -C /Users/rit3zhcx/Desktop/expo-gooey-toast status)"
     ]
   }
 }

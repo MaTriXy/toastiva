@@ -19,7 +19,7 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
     if (props.toast.content) {
       return (
         <Animated.View
-          style={[styles.body, props.bodyStyle]}
+          style={[styles.body, props.styleOverrides?.body, props.bodyStyle]}
           pointerEvents={props.canInteract ? "auto" : "none"}
         >
           {props.toast.content}
@@ -27,6 +27,8 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
             <ToastProgress
               inline
               backgroundColor={`${props.color}55`}
+              fillStyle={props.styleOverrides?.progressFill}
+              trackStyle={props.styleOverrides?.progressTrack}
               style={props.progressStyle}
             />
           ) : null}
@@ -38,7 +40,7 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
 
     return (
       <Animated.View
-        style={[styles.body, props.bodyStyle]}
+        style={[styles.body, props.styleOverrides?.body, props.bodyStyle]}
         pointerEvents={props.canInteract ? "auto" : "none"}
       >
         {props.toast.description ? (
@@ -52,6 +54,7 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
               description={props.toast.description}
               meta={props.meta}
               layout={props.bodyLayout}
+              styleOverrides={props.styleOverrides}
             />
           </Animated.View>
         ) : null}
@@ -69,14 +72,16 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
                 styles.actionBtn,
                 {
                   backgroundColor: theme.actionColors[props.toast.type],
-                  opacity: pressed ? 0.84 : 1,
                 },
+                props.styleOverrides?.action,
+                { opacity: pressed ? 0.84 : 1 },
               ]}
             >
               <Text
                 style={[
                   styles.actionLabel,
                   { color: theme.actionTextColors[props.toast.type] },
+                  props.styleOverrides?.actionText,
                 ]}
               >
                 {props.toast.action.label}
@@ -88,6 +93,8 @@ const ToastBody: React.MemoExoticComponent<React.FC<IToastBodyProps>> = memo(
           <ToastProgress
             inline
             backgroundColor={`${props.color}55`}
+            fillStyle={props.styleOverrides?.progressFill}
+            trackStyle={props.styleOverrides?.progressTrack}
             style={props.progressStyle}
           />
         ) : null}

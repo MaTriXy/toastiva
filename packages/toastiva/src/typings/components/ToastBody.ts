@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type { IToastivaData, TToastivaBodyLayout } from "../toast";
 import type { TToastivaAnimatedViewStyle } from "./common";
 
@@ -13,6 +14,7 @@ interface IToastBodyProps {
   progressStyle: TToastivaAnimatedViewStyle;
   showBody: boolean;
   showProgress: boolean;
+  styleOverrides?: ValueOf<IToastivaData, "styles">;
   toast: IToastivaData;
 }
 

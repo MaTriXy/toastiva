@@ -1,3 +1,4 @@
+import type { ValueOf } from "../../global-ts/value-of";
 import type { Dispatch, SetStateAction } from "react";
 import type {
   IToastivaConfig,
@@ -7,9 +8,18 @@ import type {
 
 interface IToastStackProps {
   bottomInset: number;
-  defaultBodyLayout: IToastivaConfig["bodyLayout"];
-  defaultExpandedWidth: IToastivaConfig["expandedWidth"];
-  defaultSpringConfig: IToastivaConfig["springConfig"];
+  defaultAnimation: ValueOf<IToastivaConfig, "animation">;
+  defaultAnimationPreset: ValueOf<IToastivaConfig, "animationPreset">;
+  defaultBodyLayout: ValueOf<IToastivaConfig, "bodyLayout">;
+  defaultBodyRadius: ValueOf<IToastivaConfig, "bodyRadius">;
+  defaultDisableIOSBlur: ValueOf<IToastivaConfig, "disableIOSBlur">;
+  defaultExpandedHeight: ValueOf<IToastivaConfig, "expandedHeight">;
+  defaultExpandedWidth: ValueOf<IToastivaConfig, "expandedWidth">;
+  defaultFill: ValueOf<IToastivaConfig, "fill">;
+  defaultIOSBlurTint: ValueOf<IToastivaConfig, "iosBlurTint">;
+  defaultSpringConfig: ValueOf<IToastivaConfig, "springConfig">;
+  defaultStroke: ValueOf<IToastivaConfig, "stroke">;
+  defaultStyles: ValueOf<IToastivaConfig, "styles">;
   expand: boolean;
   gap: number;
   heightMap: Map<string, number>;
@@ -17,7 +27,7 @@ interface IToastStackProps {
   offset: number;
   onHeightChange: (id: string, height: number) => void;
   onRemove: (id: string) => void;
-  position: IToastivaConfig["position"];
+  position: ValueOf<IToastivaConfig, "position">;
   setExpanded: Dispatch<SetStateAction<boolean>>;
   showProgress: boolean;
   showTimestamp: boolean;
