@@ -1,17 +1,17 @@
 {
   "name": "toastiva",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Morphing toast notifications for React Native.",
   "license": "MIT",
   "author": "Ritesh <119659853+rit3zh@users.noreply.github.com>",
-  "homepage": "https://github.com/rit3zh/expo-gooey-toast#readme",
+  "homepage": "https://github.com/rit3zh/toastiva#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rit3zh/expo-gooey-toast.git",
+    "url": "git+https://github.com/rit3zh/toastiva.git",
     "directory": "packages/toastiva"
   },
   "bugs": {
-    "url": "https://github.com/rit3zh/expo-gooey-toast/issues"
+    "url": "https://github.com/rit3zh/toastiva/issues"
   },
   "keywords": [
     "expo",
