@@ -43,8 +43,12 @@
     <th align="center" width="50%">Android</th>
   </tr>
   <tr>
-https://github.com/user-attachments/assets/0f16d216-9bad-4933-98e3-c2994a9a14dd
-https://github.com/user-attachments/assets/fbfad5a6-e434-4a73-a3f7-cd528cb8ba2c
+    <td align="center">
+      <video src="https://github.com/user-attachments/assets/fbfad5a6-e434-4a73-a3f7-cd528cb8ba2c" controls muted playsinline width="320"></video>
+    </td>
+    <td align="center">
+      <video src="https://github.com/user-attachments/assets/0f16d216-9bad-4933-98e3-c2994a9a14dd" controls muted playsinline width="320"></video>
+    </td>
   </tr>
 </table>
 
