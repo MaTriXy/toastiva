@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Platform } from "react-native";
 import {
   cancelAnimation,
   Easing,
@@ -49,6 +50,7 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
   }));
   const prevHeaderKeyRef = useRef(headerKey);
   const prevClearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const titleMorphFrameRef = useRef<number | null>(null);
   const isMorphingRef = useRef(false);
   const morphVersionRef = useRef(0);
   const currentTitleProgress = useSharedValue(1);
@@ -95,6 +97,10 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
       prevHeaderKeyRef.current = headerKey;
       cancelAnimation(currentTitleProgress);
       cancelAnimation(prevTitleProgress);
+      if (titleMorphFrameRef.current !== null) {
+        cancelAnimationFrame(titleMorphFrameRef.current);
+        titleMorphFrameRef.current = null;
+      }
       currentTitleProgress.value = 1;
       prevTitleProgress.value = 1;
       isMorphingRef.current = false;
@@ -114,32 +120,48 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
     prevHeaderKeyRef.current = headerKey;
     cancelAnimation(currentTitleProgress);
     cancelAnimation(prevTitleProgress);
+    if (titleMorphFrameRef.current !== null) {
+      cancelAnimationFrame(titleMorphFrameRef.current);
+      titleMorphFrameRef.current = null;
+    }
     const wasMorphing = isMorphingRef.current;
     const exitingStartProgress = wasMorphing ? currentTitleProgress.value : 0;
     const morphVersion = morphVersionRef.current + 1;
     morphVersionRef.current = morphVersion;
     isMorphingRef.current = true;
+
+    currentTitleProgress.value = 0;
+    prevTitleProgress.value = exitingStartProgress;
+
     setHeaderLayer((state) => ({
       current: nextHeaderLayer,
       prev: state.current,
     }));
 
-    currentTitleProgress.value = 0;
-    prevTitleProgress.value = exitingStartProgress;
-    currentTitleProgress.value = withTiming(1, {
-      duration: HEADER_TITLE_MORPH_MS,
-      easing: Easing.out(Easing.cubic),
-    });
-    prevTitleProgress.value = withTiming(
-      1,
-      {
-        duration: HEADER_TITLE_EXIT_MS,
+    const startTitleMorph = () => {
+      titleMorphFrameRef.current = null;
+      if (morphVersionRef.current !== morphVersion) return;
+      currentTitleProgress.value = withTiming(1, {
+        duration: HEADER_TITLE_MORPH_MS,
         easing: Easing.out(Easing.cubic),
-      },
-      (finished) => {
-        if (finished) scheduleOnRN(clearPrevLayer, morphVersion);
-      },
-    );
+      });
+      prevTitleProgress.value = withTiming(
+        1,
+        {
+          duration: HEADER_TITLE_EXIT_MS,
+          easing: Easing.out(Easing.cubic),
+        },
+        (finished) => {
+          if (finished) scheduleOnRN(clearPrevLayer, morphVersion);
+        },
+      );
+    };
+
+    if (Platform.OS === "android") {
+      titleMorphFrameRef.current = requestAnimationFrame(startTitleMorph);
+    } else {
+      startTitleMorph();
+    }
     scheduleClear(morphVersion);
   }, [
     headerKey,
@@ -161,6 +183,9 @@ function useToastHeaderMorph(params: IUseToastHeaderMorphParams) {
   useEffect(() => {
     return () => {
       if (prevClearTimerRef.current) clearTimeout(prevClearTimerRef.current);
+      if (titleMorphFrameRef.current !== null) {
+        cancelAnimationFrame(titleMorphFrameRef.current);
+      }
     };
   }, []);
 

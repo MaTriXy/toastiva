@@ -1,9 +1,9 @@
 import { useContext } from "react";
 import { ToastThemeContext } from "./context";
-import { IResolvedToastTheme } from "./theme";
+import type { IResolvedToastTheme } from "./theme";
 
 function useToastTheme(): IResolvedToastTheme {
-  return useContext(ToastThemeContext);
+  return useContext<IResolvedToastTheme>(ToastThemeContext);
 }
 
 export { useToastTheme };

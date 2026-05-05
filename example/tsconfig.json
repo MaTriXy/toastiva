@@ -8,6 +8,12 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "toastiva": [
+        "../packages/toastiva/src/index.ts"
+      ],
+      "toastiva/*": [
+        "../packages/toastiva/src/*"
       ]
     }
   },

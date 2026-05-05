@@ -8,17 +8,12 @@ import {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+
 import { HEADER_BLUR_INTENSITY } from "../utils/toast-header-animation";
 
 const USE_FILTER_BLUR = Platform.OS === "android" || Platform.OS === "web";
 const HEADER_LAYER_MAX_BLUR_PX = 3.5;
 
-// Sileo's header crossfade is purely opacity + per-layer filter blur. Each
-// layer animates independently:
-//   - current (entering): opacity 0 to 1, blur 6px to 0px
-//   - prev    (exiting):  opacity 1 to 0, blur 0px to 6px
-// At the midpoint both layers sit at ~50% opacity / ~3px blur, which reads as
-// a soft cross-dissolve instead of a "rigid text-input resize" smear.
 function useToastHeaderAnimatedStyles(
   currentTitleProgress: SharedValue<number>,
   prevTitleProgress: SharedValue<number>,

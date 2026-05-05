@@ -15,7 +15,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import {
   getHorizontalPosition,
   resolveToastStackPosition,
@@ -60,7 +60,8 @@ const ToastMorphSlot: React.MemoExoticComponent<
         (t) => t.id === displayToast.id,
       );
       const shouldCollapseBeforeSwap =
-        hasToastBody(displayToast) && !isDisplayToastGone;
+        hasToastBody(displayToast) &&
+        (!isDisplayToastGone || Platform.OS === "android");
       if (!shouldCollapseBeforeSwap) {
         pendingToastRef.current = undefined;
         setPendingToast(undefined);

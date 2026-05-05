@@ -61,10 +61,6 @@ const ToastHeaderContent: React.NamedExoticComponent<IToastHeaderContentProps> =
     );
   });
 
-// Natural width — no flexShrink. The text inside has `numberOfLines={1}` +
-// `ellipsizeMode="clip"`, so it stays a single line at its intrinsic width.
-// Letting this wrap shrink would force RN to re-measure the Text every frame
-// the parent's maxWidth/shellWidth animates, which reads as the "rigid jump".
 const titleWrapStyle = {
   justifyContent: "center" as const,
 };

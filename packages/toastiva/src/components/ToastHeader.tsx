@@ -101,11 +101,11 @@ const ToastHeader: React.NamedExoticComponent<IToastHeaderProps> = memo(
         ) : null}
 
         <Animated.View
-          key={morph.headerLayer.current.key}
+          key="current"
           style={[
             headerContentStyle,
             props.showIcon === false ? styles.headerContentNoIcon : null,
-            hasPrevLayer ? morph.currentHeaderStyle : null,
+            morph.currentHeaderStyle,
           ]}
         >
           {renderHeaderLayer(morph.headerLayer.current)}

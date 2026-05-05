@@ -266,9 +266,9 @@ const Index = () => {
           })}
         </View>
 
-        {section.footer ?
+        {section.footer ? (
           <Text style={styles.sectionFooter}>{section.footer}</Text>
-        : null}
+        ) : null}
       </View>
     ),
     [router],
